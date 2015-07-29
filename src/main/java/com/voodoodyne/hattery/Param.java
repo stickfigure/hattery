@@ -24,6 +24,7 @@ package com.voodoodyne.hattery;
 
 import lombok.Data;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,6 +34,12 @@ import java.util.List;
  */
 @Data
 public class Param {
+	/** Make a new array with the extra parameters tacked on */
+	public static Param[] concat(final Param[] base, Param... params) {
+		final Param[] result = Arrays.copyOf(base, base.length + params.length);
+		System.arraycopy(params, 0, result, result.length, params.length);
+		return result;
+	}
 
 	/** */
 	private final String name;
