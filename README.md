@@ -8,21 +8,22 @@ Hattery includes two transports. `DefaultTransport` uses `HttpURLConnection`; `A
 Transport transport = new DefaultTransport();
 
 // A GET request
-Thing thing1 = transport.request("http://example.com")
+Thing thing1 = transport.request("http://example.com/1")
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
 // A POST request
-Thing thing2 = transport.request("http://example.com")
+Thing thing2 = transport.request("http://example.com/2")
 	.POST()
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
 // Some extra stuff you can set
-Thing thing1 = transport.request()
+Thing thing3 = transport.request()
 	.url("http://example.com")
-	.path("/morethings")
-	.header("X-Authorization", "SOMETHING")
+	.path("/3")
+	.header("X-Whatever", "WHATEVER")
+	.basicAuth("myname", "mypassword")
 	.param("foo", "bar")
 	.timeout(1000)
 	.retries(3)

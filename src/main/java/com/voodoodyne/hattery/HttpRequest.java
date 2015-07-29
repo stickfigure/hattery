@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.BaseEncoding;
 import com.voodoodyne.hattery.util.MultipartWriter;
 import com.voodoodyne.hattery.util.UrlUtils;
 import lombok.AccessLevel;
@@ -206,6 +207,18 @@ public class HttpRequest {
 	 */
 	public HttpRequest mapper(ObjectMapper mapper) {
 		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+	}
+
+	/**
+	 * Set the basic auth header
+	 */
+	public HttpRequest basicAuth(String username, String password) {
+		final String basic = username + ':' + password;
+
+		// There is no standard for charset, might as well use utf-8
+		final byte[] bytes = basic.getBytes(StandardCharsets.UTF_8);
+
+		return header("Authorization", "Basic " + BaseEncoding.base64().encode(bytes));
 	}
 
 	/**
