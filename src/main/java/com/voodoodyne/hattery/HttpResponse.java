@@ -23,7 +23,7 @@ public class HttpResponse {
 		}
 	}
 
-	/** The body content of the response */
+	/** The body content of the response, whether it was success or error */
 	public InputStream getContentStream() throws IORException {
 		try {
 			return response.getContentStream();
@@ -32,6 +32,7 @@ public class HttpResponse {
 		}
 	}
 
+	/** The body content of the response, whether it was success or error */
 	public byte[] getContent() throws IORException {
 		try {
 			return response.getContent();
@@ -40,16 +41,39 @@ public class HttpResponse {
 		}
 	}
 
+	/** The body content of the response, throwing HttpException if response code is not successful */
+	public InputStream getSuccessContentStream() throws HttpException, IORException {
+		checkSuccess();
+		try {
+			return response.getContentStream();
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/** The body content of the response, throwing HttpException if response code is not successful */
+	public byte[] getSuccessContent() throws HttpException, IORException {
+		checkSuccess();
+		try {
+			return response.getContent();
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/** @throw HttpException if response code is not successful */
+	private void checkSuccess() throws HttpException {
+		if (getResponseCode() < 200 || getResponseCode() >= 300)
+			throw new HttpException(getResponseCode(), new String(getContent(), StandardCharsets.UTF_8));
+	}
+
 	/**
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(Class<T> type) throws HttpException, IORException  {
-		if (getResponseCode() < 200 || getResponseCode() >= 300)
-			throw new HttpException(getResponseCode(), new String(getContent(), StandardCharsets.UTF_8));
-
 		try {
-			return objectMapper.readValue(getContentStream(), type);
+			return objectMapper.readValue(getSuccessContentStream(), type);
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
