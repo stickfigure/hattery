@@ -51,7 +51,8 @@ public class AppEngineTransport extends Transport {
 	public TransportResponse fetch(HttpRequest request) throws IOException {
 		final HTTPRequest gaeRequest = new HTTPRequest(new URL(request.getUrlComplete()), HTTPMethod.valueOf(request.getMethod()));
 
-		gaeRequest.getFetchOptions().setDeadline(request.getTimeout() / 1000.0);
+		if (request.getTimeout() > 0)
+			gaeRequest.getFetchOptions().setDeadline(request.getTimeout() / 1000.0);
 
 		for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
 			gaeRequest.setHeader(new HTTPHeader(header.getKey(), header.getValue()));
