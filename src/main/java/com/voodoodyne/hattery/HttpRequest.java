@@ -28,12 +28,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import com.voodoodyne.hattery.util.MultipartWriter;
+import com.voodoodyne.hattery.util.TeeOutputStream;
 import com.voodoodyne.hattery.util.UrlUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -268,6 +270,10 @@ public class HttpRequest {
 	 * Write any body content, if appropriate
 	 */
 	public void writeBody(OutputStream output) throws IOException {
+		if (log.isDebugEnabled()) {
+			output = new TeeOutputStream(output, new ByteArrayOutputStream());
+		}
+
 		if (isPOST()) {
 			if (hasBinaryAttachments()) {
 				MultipartWriter writer = new MultipartWriter(output);
@@ -276,6 +282,12 @@ public class HttpRequest {
 				final String queryString = createQueryString();
 				output.write(queryString.getBytes(StandardCharsets.UTF_8));
 			}
+		}
+
+		if (log.isDebugEnabled()) {
+			byte[] bytes = ((ByteArrayOutputStream)((TeeOutputStream)output).getTwo()).toByteArray();
+			if (bytes.length > 0)
+				log.debug("Wrote body: {}", new String(bytes, StandardCharsets.UTF_8));	// not necessarily utf8 but best choice available
 		}
 	}
 
