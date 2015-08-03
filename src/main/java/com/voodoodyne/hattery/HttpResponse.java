@@ -3,6 +3,7 @@ package com.voodoodyne.hattery;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import java.io.IOException;
@@ -11,10 +12,12 @@ import java.nio.charset.StandardCharsets;
 
 /** Returned by request execution */
 @RequiredArgsConstructor
-@ToString
+@ToString(exclude = "mapper")
 public class HttpResponse {
 	private final TransportResponse response;
-	private final ObjectMapper objectMapper;
+
+	@Getter
+	private final ObjectMapper mapper;
 
 	/** The http response code */
 	public int getResponseCode() throws IORException {
@@ -75,7 +78,7 @@ public class HttpResponse {
 	 */
 	public <T> T as(Class<T> type) throws HttpException, IORException  {
 		try {
-			return objectMapper.readValue(getSuccessContentStream(), type);
+			return mapper.readValue(getSuccessContentStream(), type);
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -87,7 +90,7 @@ public class HttpResponse {
 	 */
 	public <T> T as(TypeReference<T> type) throws HttpException, IORException  {
 		try {
-			return objectMapper.readValue(getSuccessContentStream(), type);
+			return mapper.readValue(getSuccessContentStream(), type);
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -99,7 +102,7 @@ public class HttpResponse {
 	 */
 	public <T> T as(JavaType type) throws HttpException, IORException  {
 		try {
-			return objectMapper.readValue(getSuccessContentStream(), type);
+			return mapper.readValue(getSuccessContentStream(), type);
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
