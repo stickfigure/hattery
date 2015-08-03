@@ -1,5 +1,7 @@
 package com.voodoodyne.hattery;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -72,6 +74,30 @@ public class HttpResponse {
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(Class<T> type) throws HttpException, IORException  {
+		try {
+			return objectMapper.readValue(getSuccessContentStream(), type);
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/**
+	 * Convert the response to a JSON object using Jackson
+	 * @throws HttpException if there was a nonsuccess error code
+	 */
+	public <T> T as(TypeReference<T> type) throws HttpException, IORException  {
+		try {
+			return objectMapper.readValue(getSuccessContentStream(), type);
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/**
+	 * Convert the response to a JSON object using Jackson
+	 * @throws HttpException if there was a nonsuccess error code
+	 */
+	public <T> T as(JavaType type) throws HttpException, IORException  {
 		try {
 			return objectMapper.readValue(getSuccessContentStream(), type);
 		} catch (IOException e) {
