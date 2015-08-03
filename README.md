@@ -5,21 +5,24 @@ Hattery (mad, of course) is a Java library for making HTTP requests. It provides
 Hattery includes two transports. `DefaultTransport` uses `HttpURLConnection`; `AppEngineTransport` uses the asynchronous urlfetch service and allows multiple requests to operate in parallel.
  
 ```java
-Transport transport = new DefaultTransport();
+// Typically start with an empty request, no need to hold on to the transport
+HttpRequest request = new DefaultTransport().request();
 
 // A GET request
-Thing thing1 = transport.request("http://example.com/1")
+Thing thing1 = request
+	.url("http://example.com/1")
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
 // A POST request
-Thing thing2 = transport.request("http://example.com/2")
+Thing thing2 = request
+	.url("http://example.com/2")
 	.POST()
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
 // Some extra stuff you can set
-Thing thing3 = transport.request()
+List<Thing> things3 = request
 	.url("http://example.com")
 	.path("/3")
 	.header("X-Whatever", "WHATEVER")
@@ -28,7 +31,7 @@ Thing thing3 = transport.request()
 	.timeout(1000)
 	.retries(3)
 	.mapper(new MySpecialObjectMapper())
-	.fetch().as(Thing.class);
+	.fetch().as(new TypeReference<List<Thing>>(){});
 ```
 
 Install with maven:
@@ -40,3 +43,15 @@ Install with maven:
 		<version>look up the latest version number</version>
 	</dependency>
 ```
+
+Some philosphy:
+
+ * Checked exceptions are a horrible misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
+ * `HttpRequest`s are immutable and thread-safe. You can pass them around anywhere. 
+ * `Transport`s, while immutable and thread-safe, exist only to bootstrap `HttpRequest`s. You probably don't want to pass them around in your code; instead pass around an empty `HttpRequest`.
+ 
+Some extra features:
+
+ * `path()` calls append to the url; `url()` calls replace the whole url.
+ * `POST()` submits the content as `application/x-www-form-urlencoded`, unless a `BinaryAttachment` parameter is included, in which case the content becomes `multipart/form-data`.
+ * To run multiple async fetches concurrently with Google App Engine, use the `AppEngineTransport` and `fetch()` multiple `HttpResponse` objects. Getting the content of the response (say, via `as()`) completes the underlying asynchronous `Future`.
