@@ -1,5 +1,6 @@
 package com.voodoodyne.hattery;
 
+import com.google.common.collect.ListMultimap;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,4 +16,7 @@ public interface TransportResponse {
 
 	/** Raw bytes of response. Might be more efficient, might not */
 	byte[] getContent() throws IOException;
+
+	/** Response headers */
+	ListMultimap<String, String> getHeaders() throws IOException;
 }

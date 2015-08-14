@@ -27,6 +27,8 @@ import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -105,6 +107,17 @@ public class AppEngineTransport extends Transport {
 		@Override
 		public byte[] getContent() throws IOException {
 			return this.getResponse().getContent();
+		}
+
+		@Override
+		public ListMultimap<String, String> getHeaders() throws IOException {
+			final ListMultimap<String, String> headers = ArrayListMultimap.create();
+
+			for (HTTPHeader header : getResponse().getHeadersUncombined()) {
+				headers.put(header.getName(), header.getValue());
+			}
+
+			return headers;
 		}
 
 		/** */

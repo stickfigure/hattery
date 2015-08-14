@@ -3,6 +3,7 @@ package com.voodoodyne.hattery;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ListMultimap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -23,6 +24,15 @@ public class HttpResponse {
 	public int getResponseCode() throws IORException {
 		try {
 			return response.getResponseCode();
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/** Response headers */
+	public ListMultimap<String, String> getHeaders() throws IORException {
+		try {
+			return response.getHeaders();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}

@@ -22,6 +22,8 @@
 
 package com.voodoodyne.hattery;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.io.ByteStreams;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +42,7 @@ import java.util.Map;
  */
 @Slf4j
 public class DefaultTransport extends Transport {
+
 	@Override
 	public TransportResponse fetch(HttpRequest request) throws IOException {
 		for (int i = 0; i <= request.getRetries(); i++) {
@@ -111,6 +115,11 @@ public class DefaultTransport extends Transport {
 		final int responseCode = conn.getResponseCode();
 		final InputStream content = conn.getErrorStream() != null ? conn.getErrorStream() : conn.getInputStream();
 
+		final ListMultimap<String, String> headers = ArrayListMultimap.create();
+		for (Map.Entry<String, List<String>> entry : conn.getHeaderFields().entrySet()) {
+			headers.putAll(entry.getKey(), entry.getValue());
+		}
+
 		return new TransportResponse() {
 			@Override
 			public int getResponseCode() throws IOException {
@@ -125,6 +134,11 @@ public class DefaultTransport extends Transport {
 			@Override
 			public byte[] getContent() throws IOException {
 				return ByteStreams.toByteArray(getContentStream());
+			}
+
+			@Override
+			public ListMultimap<String, String> getHeaders() throws IOException {
+				return headers;
 			}
 		};
 	}
