@@ -22,17 +22,15 @@
 
 package com.voodoodyne.hattery;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * Indicates an error condition from the remote side
  * 
  * @author Jeff Schnitzer
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
 public class HttpException extends IORException {
+	@Getter
 	private final int code;
 
 	public HttpException(int code, String message) {
