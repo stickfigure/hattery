@@ -22,6 +22,7 @@
 
 package com.voodoodyne.hattery.test;
 
+import com.voodoodyne.hattery.HttpRequest;
 import com.voodoodyne.hattery.Param;
 import com.voodoodyne.hattery.test.util.TestBase;
 import lombok.Data;
@@ -79,5 +80,21 @@ public class RequestTest extends TestBase {
 	public void path() throws Exception {
 		final Map<String, String> headers = echoEndpoint().path("/one").path("/two").fetch().as(Map.class);
 		assertThat(headers, hasEntry("one", "two"));
+	}
+
+	/** */
+	@Test
+	public void addsSlashWhenAppropriate() {
+		HttpRequest request = transport.request();
+		assertThat(request.url("http://example.com").path("foo").getUrl(), equalTo("http://example.com/foo"));
+		assertThat(request.url("http://example.com/").path("foo").getUrl(), equalTo("http://example.com/foo"));
+		assertThat(request.url("http://example.com").path("/foo").getUrl(), equalTo("http://example.com/foo"));
+	}
+
+	/** */
+	@Test
+	public void removesSlashWhenAppropriate() {
+		HttpRequest request = transport.request();
+		assertThat(request.url("http://example.com/").path("/foo").getUrl(), equalTo("http://example.com/foo"));
 	}
 }

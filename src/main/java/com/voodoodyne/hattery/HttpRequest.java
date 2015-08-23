@@ -55,6 +55,14 @@ import java.util.Map;
 @ToString(exclude = "mapper")	// string version is useless and noisy
 public class HttpRequest {
 
+	/** */
+	public static final String APPLICATION_JSON = "application/json";
+	public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded; charset=utf-8";
+
+	/** Just the first part of it for matching */
+	private static final String APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING = APPLICATION_X_WWW_FORM_URLENCODED.split(" ")[0];
+
+	/** */
 	private final Transport transport;
 
 	/** */
@@ -65,6 +73,12 @@ public class HttpRequest {
 
 	/** value will be either String, Collection<String>, or BinaryAttachment */
 	private final Map<String, Object> params;
+
+	/** */
+	private final String contentType;
+
+	/** Object to be jsonfied */
+	private final Object body;
 
 	/** */
 	private final Map<String, String> headers;
@@ -90,12 +104,14 @@ public class HttpRequest {
 		this.timeout = 0;
 		this.retries = 0;
 		this.mapper = new ObjectMapper();
+		this.contentType = null;
+		this.body = null;
 	}
 
 	/** */
 	public HttpRequest method(String method) {
 		Preconditions.checkNotNull(method);
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 
 	/** */
@@ -128,16 +144,26 @@ public class HttpRequest {
 	 */
 	public HttpRequest url(String url) {
 		Preconditions.checkNotNull(url);
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 
 	/**
 	 * Appends path to the existing url. If no url is not set, this becomes the url.
+	 * Ensures this is a separate path segment by adding or removing a leading '/' if necessary.
 	 */
 	public HttpRequest path(String path) {
 		Preconditions.checkNotNull(path);
-		String url2 = (url == null) ? path : (url + path);
+		String url2 = (url == null) ? path : concatPath(url, path);
 		return url(url2);
+	}
+
+	/** Check for slashes */
+	private String concatPath(String url, String path) {
+		if (url.endsWith("/")) {
+			return path.startsWith("/") ? (url + path.substring(1)) : (url + path);
+		} else {
+			return path.startsWith("/") ? (url + path) : (url + '/' + path);
+		}
 	}
 
 	/**
@@ -179,7 +205,14 @@ public class HttpRequest {
 	/** Private implementation lets us add anything, but don't expose that to the world */
 	private HttpRequest paramAnything(String name, Object value) {
 		final ImmutableMap<String, Object> params = new ImmutableMap.Builder<String, Object>().putAll(this.params).put(name, value).build();
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+	}
+
+	/**
+	 * Provide a body that will be turned into JSON.
+	 */
+	public HttpRequest body(Object body) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 	
 	/**
@@ -187,28 +220,28 @@ public class HttpRequest {
 	 */
 	public HttpRequest header(String name, String value) {
 		final ImmutableMap<String, String> headers = new ImmutableMap.Builder<String, String>().putAll(this.headers).put(name, value).build();
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 	
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
 	public HttpRequest timeout(int timeout) {
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 
 	/**
 	 * Set a retry count, or 0 for no retries
 	 */
 	public HttpRequest retries(int retries) {
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 
 	/**
 	 * Set the mapper. Be somewhat careful here, ObjectMappers are themselves not immutable (sigh).
 	 */
 	public HttpRequest mapper(ObjectMapper mapper) {
-		return new HttpRequest(transport, method, url, params, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
 	}
 
 	/**
@@ -244,7 +277,7 @@ public class HttpRequest {
 	 * @return the actual url for this request, with appropriate parameters
 	 */
 	public String getUrlComplete() {
-		if (isPOST()) {
+		if (paramsAreInContent()) {
 			return getUrl();
 		} else {
 			final String queryString = createQueryString();
@@ -256,11 +289,18 @@ public class HttpRequest {
 	 * @return the content type which should be submitted along with this data, of null if not present (ie a GET)
 	 */
 	public String getContentType() {
+		if (contentType != null)
+			return contentType;
+
+		if (body != null)
+			return APPLICATION_JSON;
+
 		if (isPOST()) {
-			if (hasBinaryAttachments())
+			if (hasBinaryAttachments()) {
 				return MultipartWriter.CONTENT_TYPE;
-			else
-				return "application/x-www-form-urlencoded; charset=utf-8";
+			} else {
+				return APPLICATION_X_WWW_FORM_URLENCODED;
+			}
 		} else {
 			return null;
 		}
@@ -274,14 +314,18 @@ public class HttpRequest {
 			output = new TeeOutputStream(output, new ByteArrayOutputStream());
 		}
 
-		if (isPOST()) {
-			if (hasBinaryAttachments()) {
-				MultipartWriter writer = new MultipartWriter(output);
-				writer.write(params);
-			} else {
-				final String queryString = createQueryString();
-				output.write(queryString.getBytes(StandardCharsets.UTF_8));
-			}
+		final String ctype = getContentType();
+
+		if (MultipartWriter.CONTENT_TYPE.equals(ctype)) {
+			MultipartWriter writer = new MultipartWriter(output);
+			writer.write(params);
+		}
+		else if (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING)) {
+			final String queryString = createQueryString();
+			output.write(queryString.getBytes(StandardCharsets.UTF_8));
+		}
+		else if (APPLICATION_JSON.equals(ctype)) {
+			mapper.writeValue(output, body);
 		}
 
 		if (log.isDebugEnabled()) {
@@ -294,6 +338,12 @@ public class HttpRequest {
 	/** POST has a lot of special cases, so this is convenient */
 	public boolean isPOST() {
 		return HttpMethod.POST.name().equals(getMethod());
+	}
+
+	/** For some types, params go in the body (not on the url) */
+	private boolean paramsAreInContent() {
+		final String ctype = getContentType();
+		return (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING));
 	}
 
 	/** @return true if there are any binary attachments in the parameters */
