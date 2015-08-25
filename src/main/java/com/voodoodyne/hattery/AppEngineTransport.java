@@ -26,6 +26,7 @@ import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -48,6 +49,17 @@ import java.util.concurrent.Future;
  */
 @Slf4j
 public class AppEngineTransport extends Transport {
+
+	private final URLFetchService fetchService;
+
+	public AppEngineTransport() {
+		this(URLFetchServiceFactory.getURLFetchService());
+	}
+
+	/** Handy if you want to pass in a mock */
+	public AppEngineTransport(URLFetchService fetchService) {
+		this.fetchService = fetchService;
+	}
 
 	@Override
 	public TransportResponse fetch(HttpRequest request) throws IOException {
@@ -91,7 +103,7 @@ public class AppEngineTransport extends Transport {
 		public Response(int retries, HTTPRequest req) {
 			this.retries = retries;
 			this.request = req;
-			this.futureResponse = URLFetchServiceFactory.getURLFetchService().fetchAsync(this.request);
+			this.futureResponse = fetchService.fetchAsync(this.request);
 		}
 
 		@Override
