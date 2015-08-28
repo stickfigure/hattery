@@ -95,7 +95,7 @@ public class HttpRequest {
 	/**
 	 * Default values
 	 */
-	HttpRequest(Transport transport) {
+	public HttpRequest(Transport transport) {
 		this.transport = transport;
 		this.method = HttpMethod.GET.name();
 		this.url = null;
@@ -280,7 +280,7 @@ public class HttpRequest {
 		if (paramsAreInContent()) {
 			return getUrl();
 		} else {
-			final String queryString = createQueryString();
+			final String queryString = getQuery();
 			return queryString.isEmpty() ? getUrl() : (getUrl() + "?" + queryString);
 		}
 	}
@@ -321,7 +321,7 @@ public class HttpRequest {
 			writer.write(params);
 		}
 		else if (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING)) {
-			final String queryString = createQueryString();
+			final String queryString = getQuery();
 			output.write(queryString.getBytes(StandardCharsets.UTF_8));
 		}
 		else if (APPLICATION_JSON.equals(ctype)) {
@@ -359,7 +359,7 @@ public class HttpRequest {
 	 * Creates a string representing the current query string, or an empty string if there are no parameters.
 	 * Will not work if there are binary attachments!
 	 */
-	private String createQueryString() {
+	public String getQuery() {
 
 		if (this.getParams().isEmpty())
 			return "";
