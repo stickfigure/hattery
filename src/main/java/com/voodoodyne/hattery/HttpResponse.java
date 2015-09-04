@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /** Returned by request execution */
 @RequiredArgsConstructor
@@ -79,7 +78,7 @@ public class HttpResponse {
 	/** @throw HttpException if response code is not successful */
 	private void checkSuccess() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 300)
-			throw new HttpException(getResponseCode(), new String(getContent(), StandardCharsets.UTF_8));
+			throw new HttpException(getResponseCode(), getContent());
 	}
 
 	/**

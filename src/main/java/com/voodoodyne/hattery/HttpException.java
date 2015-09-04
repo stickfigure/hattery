@@ -23,9 +23,10 @@
 package com.voodoodyne.hattery;
 
 import lombok.Getter;
+import java.nio.charset.StandardCharsets;
 
 /**
- * Indicates an error condition from the remote side
+ * Indicates an error condition from the remote side. Includes the full content of the result.
  * 
  * @author Jeff Schnitzer
  */
@@ -33,9 +34,13 @@ public class HttpException extends IORException {
 	@Getter
 	private final int code;
 
-	public HttpException(int code, String message) {
-		super(code + ": " + message);
+	@Getter
+	private final byte[] content;
+
+	public HttpException(int code, byte[] content) {
+		super(code + ": " + new String(content, StandardCharsets.UTF_8));
 
 		this.code = code;
+		this.content = content;
 	}
 }
