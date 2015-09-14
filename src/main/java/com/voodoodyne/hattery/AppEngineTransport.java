@@ -36,7 +36,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -141,16 +140,13 @@ public class AppEngineTransport extends Transport {
 				throw new RuntimeException(ex);
 			}
 			catch (ExecutionException ex) {
-				if (ex.getCause() instanceof SocketTimeoutException) {
+				if (ex.getCause() instanceof IOException) {
 					if (this.retries == 0) {
-						throw (SocketTimeoutException)ex.getCause();
+						throw (IOException)ex.getCause();
 					} else {
 						log.warn("URLFetch timed out, retrying: " + ex.getCause().toString());
 						return new Response(this.retries-1, this.request).getResponse();
 					}
-				}
-				else if (ex.getCause() instanceof IOException) {
-					throw (IOException)ex.getCause();
 				}
 				else if (ex.getCause() instanceof RuntimeException) {
 					throw (RuntimeException)ex.getCause();
