@@ -24,7 +24,7 @@ package com.voodoodyne.hattery.test;
 
 import com.voodoodyne.hattery.HttpRequest;
 import com.voodoodyne.hattery.Param;
-import com.voodoodyne.hattery.test.util.TestBase;
+import com.voodoodyne.hattery.test.util.DefaultBase;
 import lombok.Data;
 import org.testng.annotations.Test;
 import java.util.Map;
@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.hasKey;
 /**
  * @author Jeff Schnitzer
  */
-public class RequestTest extends TestBase {
+public class RequestTest extends DefaultBase {
 
 	/** */
 	@Test

@@ -22,8 +22,10 @@
 
 package com.voodoodyne.hattery.test.util;
 
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.voodoodyne.hattery.DefaultTransport;
-import com.voodoodyne.hattery.HttpRequest;
 import com.voodoodyne.hattery.Transport;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -34,30 +36,27 @@ import org.testng.annotations.BeforeMethod;
  * 
  * @author Jeff Schnitzer
  */
-public class TestBase {
-	
+public class AppEngineBase {
+
+	/** */
+	private final LocalServiceTestHelper helper =
+			new LocalServiceTestHelper(
+					// Our tests assume strong consistency
+					new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy(),
+					new LocalMemcacheServiceTestConfig());
+
 	/** */
 	protected Transport transport;
 
 	@BeforeMethod
 	public void setUp() throws Exception {
+		this.helper.setUp();
 		this.transport = new DefaultTransport();
 	}
 
 	@AfterMethod
 	public void tearDown() throws Exception {
 		this.transport = null;
-	}
-
-	protected HttpRequest headersEndpoint() {
-		return transport.request("http://headers.jsontest.com");
-	}
-
-	protected HttpRequest md5Endpoint() {
-		return transport.request("http://md5.jsontest.com");
-	}
-
-	protected HttpRequest echoEndpoint() {
-		return transport.request("http://echo.jsontest.com");
+		this.helper.tearDown();
 	}
 }
