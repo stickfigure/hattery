@@ -170,7 +170,7 @@ public class HttpRequest {
 	 * Set/override the parameter with a single value
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest param(String name, String value) {
+	public HttpRequest param(String name, Object value) {
 		return paramAnything(name, value);
 	}
 
@@ -178,7 +178,7 @@ public class HttpRequest {
 	 * Set/override the parameter with a list of values
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest param(String name, List<String> value) {
+	public HttpRequest param(String name, List<Object> value) {
 		return paramAnything(name, ImmutableList.copyOf(value));
 	}
 

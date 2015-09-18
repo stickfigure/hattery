@@ -49,14 +49,14 @@ public class Param {
 
 	/**
 	 */
-	public Param(String name, String value) {
+	public Param(String name, Object value) {
 		this.name = name;
 		this.value = value;
 	}
 
 	/**
 	 */
-	public Param(String name, List<String> value) {
+	public Param(String name, List<Object> value) {
 		this.name = name;
 		this.value = value;
 	}
