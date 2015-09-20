@@ -75,7 +75,10 @@ public class HttpResponse {
 		}
 	}
 
-	/** @throw HttpException if response code is not successful */
+	/**
+	 * Call this if you don't care about the response body, you only want it to ensure that the request was successful
+	 * @throw HttpException if response code is not successful
+	 */
 	public void succeed() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 300)
 			throw new HttpException(getResponseCode(), getContent());
