@@ -57,7 +57,7 @@ public class HttpResponse {
 
 	/** The body content of the response, throwing HttpException if response code is not successful */
 	public InputStream getSuccessContentStream() throws HttpException, IORException {
-		checkSuccess();
+		succeed();
 		try {
 			return response.getContentStream();
 		} catch (IOException e) {
@@ -67,7 +67,7 @@ public class HttpResponse {
 
 	/** The body content of the response, throwing HttpException if response code is not successful */
 	public byte[] getSuccessContent() throws HttpException, IORException {
-		checkSuccess();
+		succeed();
 		try {
 			return response.getContent();
 		} catch (IOException e) {
@@ -76,7 +76,7 @@ public class HttpResponse {
 	}
 
 	/** @throw HttpException if response code is not successful */
-	private void checkSuccess() throws HttpException {
+	public void succeed() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 300)
 			throw new HttpException(getResponseCode(), getContent());
 	}
