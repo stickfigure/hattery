@@ -27,6 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
+import com.google.common.io.ByteStreams;
 import com.voodoodyne.hattery.util.MultipartWriter;
 import com.voodoodyne.hattery.util.TeeOutputStream;
 import com.voodoodyne.hattery.util.UrlUtils;
@@ -323,6 +324,12 @@ public class HttpRequest {
 		else if (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING)) {
 			final String queryString = getQuery();
 			output.write(queryString.getBytes(StandardCharsets.UTF_8));
+		}
+		else if (body instanceof byte[]) {
+			output.write((byte[])body);
+		}
+		else if (body instanceof InputStream) {
+			ByteStreams.copy((InputStream)body, output);
 		}
 		else if (APPLICATION_JSON.equals(ctype)) {
 			mapper.writeValue(output, body);
