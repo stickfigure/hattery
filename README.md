@@ -14,17 +14,25 @@ Thing thing1 = request
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
-// A POST request
+// A POST request as application/x-www-form-urlencoded 
 Thing thing2 = request
 	.url("http://example.com/2")
 	.POST()
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
+// A POST request with a JSON body
+Thing thing3 = request
+	.url("http://example.com/3")
+	.POST()
+	.body(objectThatWillBeSerializedWithJackson)
+	.mapper(yourCustomMapper)	// optional
+	.fetch().as(Thing.class);
+
 // Some extra stuff you can set
-List<Thing> things3 = request
+List<Thing> things4 = request
 	.url("http://example.com")
-	.path("/3")
+	.path("/4")
 	.header("X-Whatever", "WHATEVER")
 	.basicAuth("myname", "mypassword")
 	.param("foo", "bar")
@@ -53,5 +61,9 @@ Some philosphy:
 Some extra features:
 
  * `path()` calls append to the url; `url()` calls replace the whole url.
- * `POST()` submits the content as `application/x-www-form-urlencoded`, unless a `BinaryAttachment` parameter is included, in which case the content becomes `multipart/form-data`.
+ * `Content-Type` determines what is to be done with the `body()` and `param()`s (if either are present).
+ * Unspecified `Content-Type` is inferred:
+   * If there is a `body()`, `application/json` is assumed. Any `param()`s will become query parameters.
+   * If `POST()` and no `body()`, `application/x-www-form-urlencoded` will be submitted
+     * ...unless a `BinaryAttachment` parameter is included, in which case the content becomes `multipart/form-data`.
  * To run multiple async fetches concurrently with Google App Engine, use the `AppEngineTransport` and `fetch()` multiple `HttpResponse` objects. Getting the content of the response (say, via `as()`) completes the underlying asynchronous `Future`.
