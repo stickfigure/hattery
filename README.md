@@ -26,13 +26,13 @@ Thing thing3 = request
 	.url("http://example.com/3")
 	.POST()
 	.body(objectThatWillBeSerializedWithJackson)
-	.mapper(yourCustomMapper)	// optional
 	.fetch().as(Thing.class);
 
 // Some extra stuff you can set
 List<Thing> things4 = request
 	.url("http://example.com")
 	.path("/4")
+	.path("andMore")	// adds '/' between path elements automatically
 	.header("X-Whatever", "WHATEVER")
 	.basicAuth("myname", "mypassword")
 	.param("foo", "bar")
