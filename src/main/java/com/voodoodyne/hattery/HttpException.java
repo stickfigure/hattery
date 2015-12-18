@@ -38,7 +38,7 @@ public class HttpException extends IORException {
 	private final byte[] content;
 
 	public HttpException(int code, byte[] content) {
-		super(code + ": " + new String(content, StandardCharsets.UTF_8));
+		super(code + ": " + (content == null ? null : new String(content, StandardCharsets.UTF_8)));
 
 		this.code = code;
 		this.content = content;

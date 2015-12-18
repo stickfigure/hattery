@@ -80,7 +80,7 @@ public class HttpResponse {
 	 * @throws HttpException if response code is not successful
 	 */
 	public void succeed() throws HttpException {
-		if (getResponseCode() < 200 || getResponseCode() >= 300)
+		if (getResponseCode() < 200 || getResponseCode() >= 400)
 			throw new HttpException(getResponseCode(), getContent());
 	}
 
