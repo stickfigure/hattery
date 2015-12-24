@@ -151,10 +151,11 @@ public class HttpRequest {
 	/**
 	 * Appends path to the existing url. If no url is not set, this becomes the url.
 	 * Ensures this is a separate path segment by adding or removing a leading '/' if necessary.
+	 * @path is converted to a string via toString()
 	 */
-	public HttpRequest path(String path) {
+	public HttpRequest path(Object path) {
 		Preconditions.checkNotNull(path);
-		String url2 = (url == null) ? path : concatPath(url, path);
+		String url2 = (url == null) ? path.toString() : concatPath(url, path.toString());
 		return url(url2);
 	}
 
