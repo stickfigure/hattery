@@ -77,35 +77,30 @@ public class HttpResponse {
 
 	/**
 	 * Call this if you don't care about the response body, you only want it to ensure that the request was successful
+	 * @return this
 	 * @throws HttpException if response code is not successful
 	 */
-	public void succeed() throws HttpException {
+	public HttpResponse succeed() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 400)
 			throw new HttpException(getResponseCode(), getContent());
+
+		return this;
 	}
 
 	/**
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(Class<T> type) throws HttpException, IORException  {
-		try {
-			return mapper.readValue(getSuccessContentStream(), type);
-		} catch (IOException e) {
-			throw new IORException(e);
-		}
+	public <T> T as(Class<T> type) throws HttpException, IORException {
+		return succeed().contentAs(type);
 	}
 
-	/**
+	/**`
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(TypeReference<T> type) throws HttpException, IORException  {
-		try {
-			return mapper.readValue(getSuccessContentStream(), type);
-		} catch (IOException e) {
-			throw new IORException(e);
-		}
+		return succeed().contentAs(type);
 	}
 
 	/**
@@ -113,8 +108,37 @@ public class HttpResponse {
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(JavaType type) throws HttpException, IORException  {
+		return succeed().contentAs(type);
+	}
+
+	/**
+	 * Convert the response (whether success or error) to a JSON object using Jackson.
+	 */
+	public <T> T contentAs(Class<T> type) throws IORException  {
 		try {
-			return mapper.readValue(getSuccessContentStream(), type);
+			return mapper.readValue(getContentStream(), type);
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/**`
+	 * Convert the response  (whether success or error) to a JSON object using Jackson
+	 */
+	public <T> T contentAs(TypeReference<T> type) throws IORException  {
+		try {
+			return mapper.readValue(getContentStream(), type);
+		} catch (IOException e) {
+			throw new IORException(e);
+		}
+	}
+
+	/**
+	 * Convert the response  (whether success or error) to a JSON object using Jackson
+	 */
+	public <T> T contentAs(JavaType type) throws IORException  {
+		try {
+			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
