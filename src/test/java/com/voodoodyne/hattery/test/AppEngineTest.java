@@ -22,29 +22,36 @@
 
 package com.voodoodyne.hattery.test;
 
-import com.voodoodyne.hattery.HttpRequest;
-import com.voodoodyne.hattery.test.util.AppEngineBase;
-import lombok.Data;
-import org.testng.annotations.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+
+import org.apache.commons.lang3.StringUtils;
+import org.testng.annotations.Test;
+
+import com.voodoodyne.hattery.HttpRequest;
+import com.voodoodyne.hattery.IORException;
+import com.voodoodyne.hattery.test.util.AppEngineBase;
 
 /**
  * @author Jeff Schnitzer
  */
 public class AppEngineTest extends AppEngineBase {
 
-	@Data
-	private static class Foo {
-		private String foo;
-	}
-
 	/** */
 	@Test
 	public void timesOutAndRetries() throws Exception {
-		final HttpRequest request = transport.request().url("http://voodoodyne0.appspot.com/timeout").param("time", "4").timeout(1000).retries(5);
+		configSystemOutForTest();
+		HttpRequest request = null;
 
-		final Foo foo = request.fetch().as(Foo.class);
-		assertThat(foo.getFoo(), equalTo("bar"));
+		try {
+			request = transport.request().url("http://voodoodyne0.appspot.com/timeout").param("time", "4").timeout(1000).retries(5);
+			request.fetch().as(Foo.class);
+			assertThat(true, equalTo(false)); //Should fail if gets here
+		} catch (IORException e) {
+			assertThat(StringUtils.countMatches(outContent.toString(), "Timeout error, retrying"), equalTo(5));
+		} finally {
+			resetSystemOutTest();
+		}
 	}
+	
 }

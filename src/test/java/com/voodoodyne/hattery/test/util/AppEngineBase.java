@@ -36,7 +36,7 @@ import org.testng.annotations.BeforeMethod;
  * 
  * @author Jeff Schnitzer
  */
-public class AppEngineBase {
+public class AppEngineBase extends AbstractTest {
 
 	/** */
 	private final LocalServiceTestHelper helper =
