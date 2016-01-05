@@ -34,7 +34,7 @@ import org.testng.annotations.BeforeMethod;
  * 
  * @author Jeff Schnitzer
  */
-public class DefaultBase {
+public class DefaultBase extends AbstractTest {
 	
 	/** */
 	protected Transport transport;

@@ -22,16 +22,21 @@
 
 package com.voodoodyne.hattery.test;
 
-import com.voodoodyne.hattery.HttpRequest;
-import com.voodoodyne.hattery.Param;
-import com.voodoodyne.hattery.test.util.DefaultBase;
-import lombok.Data;
-import org.testng.annotations.Test;
-import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
+
+import java.util.Map;
+
+import lombok.Data;
+
+import org.testng.annotations.Test;
+
+import com.voodoodyne.hattery.HttpRequest;
+import com.voodoodyne.hattery.IORException;
+import com.voodoodyne.hattery.Param;
+import com.voodoodyne.hattery.test.util.DefaultBase;
 
 /**
  * @author Jeff Schnitzer
@@ -39,6 +44,7 @@ import static org.hamcrest.Matchers.hasKey;
 public class RequestTest extends DefaultBase {
 
 	/** */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void defaultHeaders() throws Exception {
 		final Map<String, String> headers = headersEndpoint().fetch().as(Map.class);
@@ -48,6 +54,7 @@ public class RequestTest extends DefaultBase {
 	}
 
 	/** */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void extraHeaders() throws Exception {
 		final Map<String, String> headers = headersEndpoint().header("foo", "bar").header("baz", "bat").fetch().as(Map.class);
@@ -76,6 +83,7 @@ public class RequestTest extends DefaultBase {
 	}
 
 	/** */
+	@SuppressWarnings("unchecked")
 	@Test
 	public void path() throws Exception {
 		final Map<String, String> headers = echoEndpoint().path("/one").path("/two").fetch().as(Map.class);
@@ -96,5 +104,44 @@ public class RequestTest extends DefaultBase {
 	public void removesSlashWhenAppropriate() {
 		HttpRequest request = transport.request();
 		assertThat(request.url("http://example.com/").path("/foo").getUrl(), equalTo("http://example.com/foo"));
+	}
+	
+	/** */
+	@Test
+	public void basicAuth() {
+		HttpRequest request = transport.request().basicAuth("test", "testing");
+		assertThat(request.getHeaders(), hasEntry("Authorization", "Basic dGVzdDp0ZXN0aW5n"));
+	}
+	
+	/** */
+	@Test
+	public void GETExistentData() {
+		HttpRequest request = transport.request("http://echo.jsontest.com/foo/bar");
+		final Foo foo = request.GET().fetch().as(Foo.class);
+		assertThat(foo.getFoo(), equalTo("bar"));
+	}
+	
+	/** */
+	@Test(expectedExceptions={IORException.class})
+	public void GETNonExistentData() {
+		HttpRequest request = echoEndpoint();
+		request.GET().fetch().as(Foo.class);
+		assertThat(true, equalTo(false)); //Should fail if gets here
+	}
+	
+	/** */
+	@Test
+	public void POSTExistentData() {
+		HttpRequest request = transport.request("http://validate.jsontest.com?json={foo:bar}");
+		final Validate validate = request.POST().fetch().as(Validate.class);
+		assertThat(validate.isValidate(), equalTo(true));
+	}
+	
+	/** */
+	@Test(expectedExceptions={IORException.class})
+	public void POSTNonExistentData() {
+		HttpRequest request = transport.request("http://validate.jsontest.com");
+		request.GET().fetch().as(Validate.class);
+		assertThat(true, equalTo(false)); //Should fail if gets here
 	}
 }
