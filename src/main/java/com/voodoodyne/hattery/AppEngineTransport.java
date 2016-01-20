@@ -22,6 +22,7 @@
 
 package com.voodoodyne.hattery;
 
+import com.google.appengine.api.urlfetch.FetchOptions;
 import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
@@ -31,6 +32,7 @@ import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,7 +64,7 @@ public class AppEngineTransport extends Transport {
 
 	@Override
 	public TransportResponse fetch(HttpRequest request) throws IOException {
-		final HTTPRequest gaeRequest = new HTTPRequest(new URL(request.getUrlComplete()), HTTPMethod.valueOf(request.getMethod()));
+		final HTTPRequest gaeRequest = new HTTPRequest(new URL(request.getUrlComplete()), HTTPMethod.valueOf(request.getMethod()), defaultOptions());
 
 		if (request.getTimeout() > 0)
 			gaeRequest.getFetchOptions().setDeadline(request.getTimeout() / 1000.0);
@@ -82,6 +84,14 @@ public class AppEngineTransport extends Transport {
 		}
 
 		return new Response(request.getRetries(), gaeRequest);
+	}
+
+	/**
+	 * Provide a hook so that default options like following redirects, validating ssl, etc can be overridden by
+	 * subclassing the transport.
+	 */
+	protected FetchOptions defaultOptions() {
+		return FetchOptions.Builder.withDefaults();
 	}
 
 	/**
