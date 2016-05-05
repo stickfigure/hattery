@@ -36,6 +36,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -351,7 +352,8 @@ public class HttpRequest {
 	/** For some types, params go in the body (not on the url) */
 	private boolean paramsAreInContent() {
 		final String ctype = getContentType();
-		return (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING));
+		return ctype != null &&
+				(ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING) || ctype.startsWith(MultipartWriter.CONTENT_TYPE));
 	}
 
 	/** @return true if there are any binary attachments in the parameters */
