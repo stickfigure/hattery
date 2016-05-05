@@ -63,6 +63,11 @@ public class DefaultTransport extends Transport {
 		return null;
 	}
 
+	/** Override this if you want special behavior */
+	protected void prepareConnection(final HttpURLConnection conn) {
+		// default do nothing
+	}
+
 	/** */
 	private TransportResponse executeOnce(HttpRequest request) throws IOException {
 
@@ -78,6 +83,8 @@ public class DefaultTransport extends Transport {
 		if (request.getContentType() != null) {
 			conn.setRequestProperty("Content-Type", request.getContentType());
 		}
+
+		prepareConnection(conn);
 
 		// This whole setDoOutput() thing is retarded
 		request.writeBody(new OutputStream() {
