@@ -16,8 +16,8 @@
 	<packaging>jar</packaging>
 	<url>https://github.com/stickfigure/hattery</url>
 	<scm>
-		<url>scm:git:https://github.com/stickfigure/hattery</url>
-		<developerConnection>scm:git:https://github.com/stickfigure/hattery</developerConnection>
+		<url>scm:git:git@github.com:stickfigure/hattery</url>
+		<developerConnection>scm:git:git@github.com:stickfigure/hattery</developerConnection>
 	  <tag>HEAD</tag>
   </scm>
 	<licenses>
