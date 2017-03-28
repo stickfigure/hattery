@@ -41,6 +41,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -267,7 +269,7 @@ public class HttpRequest {
 		Preconditions.checkState(url != null);
 
 		log.debug("Fetching {}", this);
-		log.debug("{} {}", getMethod(), getUrlComplete());
+		log.debug("{} {}", getMethod(), toUrlString());
 
 		try {
 			return new HttpResponse(getTransport().fetch(this), getMapper());
@@ -277,14 +279,35 @@ public class HttpRequest {
 	}
 
 	/**
+	 * @deprecated use toUrlString() instead
 	 * @return the actual url for this request, with appropriate parameters
 	 */
+	@Deprecated
 	public String getUrlComplete() {
+		return toUrlString();
+	}
+
+	/**
+	 * @return the full url for this request, with appropriate parameters
+	 */
+	public String toUrlString() {
 		if (paramsAreInContent()) {
 			return getUrl();
 		} else {
 			final String queryString = getQuery();
 			return queryString.isEmpty() ? getUrl() : (getUrl() + "?" + queryString);
+		}
+	}
+
+	/**
+	 * @return the java url equivalent of this request
+	 * @throws IORException (the runtime wrapper for IOException) if somehow the url is malformed
+	 */
+	public URL toUrl() throws IORException {
+		try {
+			return new URL(toUrlString());
+		} catch (MalformedURLException e) {
+			throw new IORException(e);
 		}
 	}
 

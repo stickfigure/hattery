@@ -38,7 +38,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -64,7 +63,7 @@ public class AppEngineTransport extends Transport {
 
 	@Override
 	public TransportResponse fetch(HttpRequest request) throws IOException {
-		final HTTPRequest gaeRequest = new HTTPRequest(new URL(request.getUrlComplete()), HTTPMethod.valueOf(request.getMethod()), defaultOptions());
+		final HTTPRequest gaeRequest = new HTTPRequest(request.toUrl(), HTTPMethod.valueOf(request.getMethod()), defaultOptions());
 
 		if (request.getTimeout() > 0)
 			gaeRequest.getFetchOptions().setDeadline(request.getTimeout() / 1000.0);

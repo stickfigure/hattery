@@ -26,12 +26,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.io.ByteStreams;
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public class DefaultTransport extends Transport {
 	/** */
 	private TransportResponse executeOnce(HttpRequest request) throws IOException {
 
-		final HttpURLConnection conn = (HttpURLConnection)new URL(request.getUrlComplete()).openConnection();
+		final HttpURLConnection conn = (HttpURLConnection)request.toUrl().openConnection();
 		conn.setRequestMethod(request.getMethod());
 		conn.setConnectTimeout(request.getTimeout());
 		conn.setReadTimeout(request.getTimeout());
