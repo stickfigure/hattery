@@ -22,15 +22,14 @@
 
 package com.voodoodyne.hattery.test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-
-import org.apache.commons.lang3.StringUtils;
-import org.testng.annotations.Test;
-
 import com.voodoodyne.hattery.HttpRequest;
 import com.voodoodyne.hattery.IORException;
 import com.voodoodyne.hattery.test.util.AppEngineBase;
+import org.apache.commons.lang3.StringUtils;
+import org.testng.annotations.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Jeff Schnitzer
@@ -44,7 +43,7 @@ public class AppEngineTest extends AppEngineBase {
 		HttpRequest request = null;
 
 		try {
-			request = transport.request().url("http://voodoodyne0.appspot.com/timeout").param("time", "4").timeout(1000).retries(5);
+			request = transport.request().url("http://voodoodyne1.appspot.com/timeout").param("time", "4").timeout(1000).retries(5);
 			request.fetch().as(Foo.class);
 			assertThat(true, equalTo(false)); //Should fail if gets here
 		} catch (IORException e) {
