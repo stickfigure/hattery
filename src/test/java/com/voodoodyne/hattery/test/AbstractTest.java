@@ -1,4 +1,4 @@
-package com.voodoodyne.hattery.test.util;
+package com.voodoodyne.hattery.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

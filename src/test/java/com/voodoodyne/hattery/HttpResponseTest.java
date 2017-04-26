@@ -20,32 +20,29 @@
  * THE SOFTWARE.
  */
 
-package com.voodoodyne.hattery.test;
+package com.voodoodyne.hattery;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.voodoodyne.hattery.test.DefaultBase;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
-import org.mockito.Mockito;
-import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.voodoodyne.hattery.HttpException;
-import com.voodoodyne.hattery.HttpResponse;
-import com.voodoodyne.hattery.TransportResponse;
-import com.voodoodyne.hattery.test.util.DefaultBase;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Jeff Schnitzer
  */
-public class HttpResponseTest extends DefaultBase {
+class HttpResponseTest extends DefaultBase {
 
 	private ListMultimap<String, String> fakeHeaders() {
 		ListMultimap<String, String> headers = ArrayListMultimap.create();
@@ -57,7 +54,7 @@ public class HttpResponseTest extends DefaultBase {
 	
 	/** */
 	@Test
-	public void getHeaders() throws Exception {
+	void getHeaders() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		Mockito.when(transportResponseMock.getHeaders()).thenReturn(fakeHeaders());
 		
@@ -71,7 +68,7 @@ public class HttpResponseTest extends DefaultBase {
 	
 	/** */
 	@Test
-	public void getContent() throws Exception {
+	void getContent() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		byte[] byteTest = "test".getBytes();
 		Mockito.when(transportResponseMock.getContent()).thenReturn(byteTest);
@@ -83,7 +80,7 @@ public class HttpResponseTest extends DefaultBase {
 	
 	/** */
 	@Test
-	public void getContentStream() throws Exception {
+	void getContentStream() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
 		Mockito.when(transportResponseMock.getContentStream()).thenReturn(byteArrayInputStream);
@@ -95,7 +92,7 @@ public class HttpResponseTest extends DefaultBase {
 	
 	/** */
 	@Test
-	public void getSuccessContentStream() throws Exception {
+	void getSuccessContentStream() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
 		Mockito.when(transportResponseMock.getContentStream()).thenReturn(byteArrayInputStream);
@@ -108,7 +105,7 @@ public class HttpResponseTest extends DefaultBase {
 	
 	/** */
 	@Test
-	public void getSuccessContent() throws Exception {
+	void getSuccessContent() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		byte[] byteTest = "test".getBytes();
 		Mockito.when(transportResponseMock.getContent()).thenReturn(byteTest);
@@ -121,7 +118,7 @@ public class HttpResponseTest extends DefaultBase {
 	
 	/** */
 	@Test
-	public void succeedSuccessful() throws Exception {
+	void succeedSuccessful() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		Mockito.when(transportResponseMock.getResponseCode()).thenReturn(200);
 		
@@ -133,14 +130,16 @@ public class HttpResponseTest extends DefaultBase {
 	}
 	
 	/** */
-	@Test(expectedExceptions={HttpException.class})
-	public void succeedUnsuccessful() throws Exception {
+	@Test
+	void succeedUnsuccessful() throws Exception {
 		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
 		Mockito.when(transportResponseMock.getResponseCode()).thenReturn(404);
 		
 		HttpResponse response = new HttpResponse(transportResponseMock, new ObjectMapper());
-		response.succeed();
-		assertThat(true, equalTo(false)); //Should fail if gets here
+		
+		assertThrows(HttpException.class, () -> {
+			response.succeed();
+		});
 	}
 
 }

@@ -20,31 +20,30 @@
  * THE SOFTWARE.
  */
 
-package com.voodoodyne.hattery.test.util;
+package com.voodoodyne.hattery.util;
+
+import com.voodoodyne.hattery.test.DefaultBase;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import org.testng.annotations.Test;
-
-import com.voodoodyne.hattery.util.UrlUtils;
-
 /**
  * @author Jeff Schnitzer
  */
-public class UrlUtilsTest extends DefaultBase {
+class UrlUtilsTest extends DefaultBase {
 	
 	private String encodedURL = "http%3A%2F%2Fvalidate.jsontest.com%3Fjson%3D%7Bfoo%3Abar%7D";
 	private String decodedURL = "http://validate.jsontest.com?json={foo:bar}";
 	
 	/** */
 	@Test
-	public void urlEncode() {
+	void urlEncode() {
 		assertThat(UrlUtils.urlEncode(decodedURL), equalTo(encodedURL));
 	}
 	
 	@Test
-	public void urlDecode() {
+	void urlDecode() {
 		assertThat(UrlUtils.urlDecode(encodedURL), equalTo(decodedURL));
 	}
 }

@@ -20,28 +20,27 @@
  * THE SOFTWARE.
  */
 
-package com.voodoodyne.hattery.test.util;
+package com.voodoodyne.hattery.util;
+
+import com.voodoodyne.hattery.test.DefaultBase;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.io.IOException;
-
-import org.testng.annotations.Test;
-
-import com.voodoodyne.hattery.util.LineWriter;
-
 /**
  * @author Jeff Schnitzer
  */
-public class LineWriterTest extends DefaultBase {
+class LineWriterTest extends DefaultBase {
 	
 	private static final String CRLF = "\r\n";
 	
 	/**
 	 * @throws IOException  */
 	@Test
-	public void print() throws IOException {
+	void print() throws IOException {
 		configSystemOutForTest();
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.print("f");
@@ -52,7 +51,7 @@ public class LineWriterTest extends DefaultBase {
 	}
 	
 	@Test
-	public void printlnWithParameters() throws IOException {
+	void printlnWithParameters() throws IOException {
 		configSystemOutForTest();
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.println("f");
@@ -63,7 +62,7 @@ public class LineWriterTest extends DefaultBase {
 	}
 	
 	@Test
-	public void printlnWithoutParameters() throws IOException {
+	void printlnWithoutParameters() throws IOException {
 		configSystemOutForTest();
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.println();

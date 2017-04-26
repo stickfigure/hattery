@@ -20,13 +20,11 @@
  * THE SOFTWARE.
  */
 
-package com.voodoodyne.hattery.test;
+package com.voodoodyne.hattery;
 
-import com.voodoodyne.hattery.HttpRequest;
-import com.voodoodyne.hattery.IORException;
-import com.voodoodyne.hattery.test.util.AppEngineBase;
+import com.voodoodyne.hattery.test.AppEngineBase;
 import org.apache.commons.lang3.StringUtils;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -34,11 +32,11 @@ import static org.hamcrest.Matchers.equalTo;
 /**
  * @author Jeff Schnitzer
  */
-public class AppEngineTest extends AppEngineBase {
+class AppEngineTest extends AppEngineBase {
 
 	/** */
 	@Test
-	public void timesOutAndRetries() throws Exception {
+	void timesOutAndRetries() throws Exception {
 		configSystemOutForTest();
 		HttpRequest request = null;
 
