@@ -25,7 +25,6 @@ package com.voodoodyne.hattery;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.voodoodyne.hattery.util.MultipartWriter;
@@ -45,6 +44,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -214,7 +214,7 @@ public class HttpRequest {
 
 	/** Private implementation lets us add anything, but don't expose that to the world */
 	private HttpRequest paramAnything(String name, Object value) {
-		final ImmutableMap<String, Object> params = new ImmutableMap.Builder<String, Object>().putAll(this.params).put(name, value).build();
+		final Map<String, Object> params = combine(this.params, name, value);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
@@ -229,10 +229,10 @@ public class HttpRequest {
 	 * Sets/overrides a header.  Value is not encoded in any particular way.
 	 */
 	public HttpRequest header(String name, String value) {
-		final ImmutableMap<String, String> headers = new ImmutableMap.Builder<String, String>().putAll(this.headers).put(name, value).build();
+		final Map<String, String> headers = combine(this.headers, name, value);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
-	
+
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
@@ -443,5 +443,15 @@ public class HttpRequest {
 		}
 		
 		return bld.toString();
+	}
+
+	/**
+	 * Make a new map that combines the old values with the new key/value. Overrides the key if already present.
+	 * @return a new immutable map, preserving order
+	 */
+	private <T> Map<String, T> combine(final Map<String, T> old, final String newKey, final T newValue) {
+		final Map<String, T> combined = new LinkedHashMap<>(old);
+		combined.put(newKey, newValue);
+		return Collections.unmodifiableMap(combined);
 	}
 }

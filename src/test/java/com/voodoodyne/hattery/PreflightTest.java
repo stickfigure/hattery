@@ -31,7 +31,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 
 /**
- * @author Jeff Schnitzer
  */
 class PreflightTest {
 
@@ -39,8 +38,11 @@ class PreflightTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	void preflightCanChangeRequest() throws Exception {
-		final HttpRequest request = Requests.HEADERS_ENDPOINT.preflightAndThen(req -> req.header("foo", "bar"));
-		final Map<String, String> entries = request.fetch().as(Map.class);
+		final Map<String, String> entries = Requests.HEADERS_ENDPOINT
+				.header("foo", "notthisone")
+				.preflightAndThen(req -> req.header("foo", "bar"))
+				.fetch().as(Map.class);
+
 		assertThat(entries, hasEntry("foo", "bar"));
 	}
 }

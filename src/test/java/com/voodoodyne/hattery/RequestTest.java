@@ -43,9 +43,23 @@ class RequestTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	void extraHeadersAreSubmitted() throws Exception {
-		final Map<String, String> headers = Requests.HEADERS_ENDPOINT.header("foo", "bar").header("baz", "bat").fetch().as(Map.class);
+		final Map<String, String> headers = Requests.HEADERS_ENDPOINT
+				.header("foo", "bar")
+				.header("baz", "bat")
+				.fetch().as(Map.class);
+
 		assertThat(headers, hasEntry("foo", "bar"));
 		assertThat(headers, hasEntry("baz", "bat"));
+	}
+
+	/** */
+	@Test
+	@SuppressWarnings("unchecked")
+	void headersCanBeOverridden() throws Exception {
+		final Map<String, String> headers = Requests.HEADERS_ENDPOINT
+				.header("foo", "zzz").header("foo", "yyy")
+				.fetch().as(Map.class);
+		assertThat(headers, hasEntry("foo", "yyy"));
 	}
 
 	@Data
@@ -65,6 +79,16 @@ class RequestTest {
 	@Test
 	void paramObjectsAreSubmitted() throws Exception {
 		final MD5Response response = Requests.MD5_ENDPOINT.param(new Param("text", "example")).fetch().as(MD5Response.class);
+		assertThat(response.getOriginal(), equalTo("example"));
+	}
+
+	/** */
+	@Test
+	void paramsCanBeOverridden() throws Exception {
+		final MD5Response response = Requests.MD5_ENDPOINT
+				.param("text", "notexample")
+				.param("text", "example")
+				.fetch().as(MD5Response.class);
 		assertThat(response.getOriginal(), equalTo("example"));
 	}
 
