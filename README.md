@@ -54,6 +54,8 @@ Install with maven:
 	</dependency>
 ```
 
+Hattery requires Java 8. The last version that supported Java 7 is 0.16.
+
 Some philosphy:
 
  * Checked exceptions are a horrible misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
