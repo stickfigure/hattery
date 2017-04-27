@@ -14,7 +14,7 @@
 
 	<groupId>com.voodoodyne.hattery</groupId>
 	<artifactId>hattery</artifactId>
-	<version>0.17-SNAPSHOT</version>
+	<version>0.17</version>
 
 	<name>Hattery</name>
 	<description>Fluent, immutable Java API for making HTTP calls</description>
@@ -23,7 +23,7 @@
 	<scm>
 		<url>scm:git:git@github.com:stickfigure/hattery</url>
 		<developerConnection>scm:git:git@github.com:stickfigure/hattery</developerConnection>
-		<tag>HEAD</tag>
+		<tag>hattery-0.17</tag>
 	</scm>
 	<licenses>
 		<license>
