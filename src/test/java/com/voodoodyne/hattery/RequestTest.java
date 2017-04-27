@@ -22,7 +22,8 @@
 
 package com.voodoodyne.hattery;
 
-import com.voodoodyne.hattery.test.DefaultBase;
+import com.voodoodyne.hattery.test.ValidateResponse;
+import com.voodoodyne.hattery.test.Requests;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
@@ -31,65 +32,54 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Jeff Schnitzer
  */
-class RequestTest extends DefaultBase {
+class RequestTest {
 
 	/** */
-	@SuppressWarnings("unchecked")
 	@Test
-	void defaultHeaders() throws Exception {
-		final Map<String, String> headers = headersEndpoint().fetch().as(Map.class);
-		assertThat(headers, hasKey("Host"));
-		assertThat(headers, hasKey("User-Agent"));
-		assertThat(headers, hasKey("Accept"));
-	}
-
-	/** */
 	@SuppressWarnings("unchecked")
-	@Test
-	void extraHeaders() throws Exception {
-		final Map<String, String> headers = headersEndpoint().header("foo", "bar").header("baz", "bat").fetch().as(Map.class);
+	void extraHeadersAreSubmitted() throws Exception {
+		final Map<String, String> headers = Requests.HEADERS_ENDPOINT.header("foo", "bar").header("baz", "bat").fetch().as(Map.class);
 		assertThat(headers, hasEntry("foo", "bar"));
 		assertThat(headers, hasEntry("baz", "bat"));
 	}
 
 	@Data
 	private static class MD5Response {
-		private String md5;
-		private String original;
+		private final String md5;
+		private final String original;
 	}
 
 	/** */
 	@Test
-	void params() throws Exception {
-		final MD5Response response = md5Endpoint().param("text", "example").fetch().as(MD5Response.class);
+	void paramStringsAreSubmitted() throws Exception {
+		final MD5Response response = Requests.MD5_ENDPOINT.param("text", "example").fetch().as(MD5Response.class);
 		assertThat(response.getOriginal(), equalTo("example"));
 	}
 
 	/** */
 	@Test
-	void paramObjects() throws Exception {
-		final MD5Response response = md5Endpoint().param(new Param("text", "example")).fetch().as(MD5Response.class);
+	void paramObjectsAreSubmitted() throws Exception {
+		final MD5Response response = Requests.MD5_ENDPOINT.param(new Param("text", "example")).fetch().as(MD5Response.class);
 		assertThat(response.getOriginal(), equalTo("example"));
 	}
 
 	/** */
 	@SuppressWarnings("unchecked")
 	@Test
-	void path() throws Exception {
-		final Map<String, String> headers = echoEndpoint().path("/one").path("/two").fetch().as(Map.class);
+	void pathsAreSubmitted() throws Exception {
+		final Map<String, String> headers = Requests.ECHO_ENDPOINT.path("/one").path("/two").fetch().as(Map.class);
 		assertThat(headers, hasEntry("one", "two"));
 	}
 
 	/** */
 	@Test
-	void addsSlashWhenAppropriate() {
-		HttpRequest request = transport.request();
+	void addsSlashToPathWhenAppropriate() {
+		HttpRequest request = new DefaultTransport().request();
 		assertThat(request.url("http://example.com").path("foo").getUrl(), equalTo("http://example.com/foo"));
 		assertThat(request.url("http://example.com/").path("foo").getUrl(), equalTo("http://example.com/foo"));
 		assertThat(request.url("http://example.com").path("/foo").getUrl(), equalTo("http://example.com/foo"));
@@ -97,49 +87,34 @@ class RequestTest extends DefaultBase {
 
 	/** */
 	@Test
-	void removesSlashWhenAppropriate() {
-		HttpRequest request = transport.request();
+	void removesSlashFromPathWhenAppropriate() {
+		HttpRequest request = new DefaultTransport().request();
 		assertThat(request.url("http://example.com/").path("/foo").getUrl(), equalTo("http://example.com/foo"));
 	}
 	
 	/** */
 	@Test
-	void basicAuth() {
-		HttpRequest request = transport.request().basicAuth("test", "testing");
+	void basicAuthIsSubmitted() {
+		HttpRequest request = new DefaultTransport().request().basicAuth("test", "testing");
 		assertThat(request.getHeaders(), hasEntry("Authorization", "Basic dGVzdDp0ZXN0aW5n"));
 	}
 	
 	/** */
 	@Test
-	void GETExistentData() {
-		HttpRequest request = transport.request("http://echo.jsontest.com/foo/bar");
-		final Foo foo = request.GET().fetch().as(Foo.class);
-		assertThat(foo.getFoo(), equalTo("bar"));
-	}
-	
-	/** */
-	@Test
-	void GETNonExistentData() {
+	void jacksonExceptionsProduceIORException() {
 		assertThrows(IORException.class, () -> {
-			HttpRequest request = echoEndpoint();
-			request.GET().fetch().as(Foo.class);
+			Requests.ECHO_ENDPOINT.GET().fetch().as(MD5Response.class);	// wrong response
 		});
 	}
 	
-	/** */
-	@Test
-	void POSTExistentData() {
-		HttpRequest request = transport.request("http://validate.jsontest.com?json={foo:bar}");
-		final Validate validate = request.POST().fetch().as(Validate.class);
+	/** This service doesn't actually take post bodies. Sigh. */
+	//@Test
+	void bodyIsSubmittedAsJSON() {
+		final ValidateResponse validate = Requests.VALIDATE_ENDPOINT
+				.POST()
+				.body(new MD5Response("foo", "bar"))
+				.fetch().as(ValidateResponse.class);
+
 		assertThat(validate.isValidate(), equalTo(true));
-	}
-	
-	/** */
-	@Test
-	void POSTNonExistentData() {
-		assertThrows(IORException.class, () -> {
-			HttpRequest request = transport.request("http://validate.jsontest.com");
-			request.GET().fetch().as(Validate.class);
-		});
 	}
 }

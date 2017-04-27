@@ -22,39 +22,30 @@
 
 package com.voodoodyne.hattery.test;
 
-import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
-import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.voodoodyne.hattery.DefaultTransport;
+import com.voodoodyne.hattery.HttpRequest;
 import com.voodoodyne.hattery.Transport;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 
 /**
+ * Some constant requests - they're immutable!
+ * 
  * @author Jeff Schnitzer
  */
-public class AppEngineBase extends AbstractTest {
+public class Requests {
 
 	/** */
-	private final LocalServiceTestHelper helper =
-			new LocalServiceTestHelper(
-					// Our tests assume strong consistency
-					new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy(),
-					new LocalMemcacheServiceTestConfig());
+	public static Transport TRANSPORT = new DefaultTransport();
 
 	/** */
-	protected Transport transport;
+	public static HttpRequest HEADERS_ENDPOINT = TRANSPORT.request("http://headers.jsontest.com");
 
-	@BeforeEach
-	void setUp() throws Exception {
-		this.helper.setUp();
-		this.transport = new DefaultTransport();
-	}
+	/** */
+	public static  HttpRequest MD5_ENDPOINT = TRANSPORT.request("http://md5.jsontest.com");
 
-	@AfterEach
-	void tearDown() throws Exception {
-		this.transport = null;
-		this.helper.tearDown();
-	}
+	/** */
+	public static  HttpRequest ECHO_ENDPOINT = TRANSPORT.request("http://echo.jsontest.com");
+
+	/** */
+	public static  HttpRequest VALIDATE_ENDPOINT = TRANSPORT.request("http://validate.jsontest.com");
 }

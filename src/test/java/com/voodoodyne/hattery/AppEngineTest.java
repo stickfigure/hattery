@@ -22,9 +22,18 @@
 
 package com.voodoodyne.hattery;
 
-import com.voodoodyne.hattery.test.AppEngineBase;
-import org.apache.commons.lang3.StringUtils;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.appengine.tools.development.testing.LocalURLFetchServiceTestConfig;
+import lombok.Data;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,22 +41,55 @@ import static org.hamcrest.Matchers.equalTo;
 /**
  * @author Jeff Schnitzer
  */
-class AppEngineTest extends AppEngineBase {
+class AppEngineTest {
+
+	/** The timeout service returns this */
+	@Data
+	public static class Foo {
+		private final String foo;
+	}
+
+	@Data
+	private static class CallCounter implements InvocationHandler {
+		private final URLFetchService service;
+		private int count;
+
+		@Override
+		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+			count++;
+			return method.invoke(service, args);
+		}
+	}
+
+	/** */
+	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalURLFetchServiceTestConfig());
+
+	@BeforeEach
+	void setUpHelper() {
+		helper.setUp();
+	}
+
+	@AfterEach
+	void tearDownHelper() {
+		helper.tearDown();
+	}
 
 	/** */
 	@Test
 	void timesOutAndRetries() throws Exception {
-		configSystemOutForTest();
-		HttpRequest request = null;
+		final CallCounter callCounter = new CallCounter(URLFetchServiceFactory.getURLFetchService());
+		final URLFetchService fetchService = (URLFetchService)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[]{URLFetchService.class}, callCounter);
 
 		try {
-			request = transport.request().url("http://voodoodyne1.appspot.com/timeout").param("time", "4").timeout(1000).retries(5);
-			request.fetch().as(Foo.class);
-			assertThat(true, equalTo(false)); //Should fail if gets here
+			new AppEngineTransport(fetchService).request()
+					.url("http://voodoodyne1.appspot.com/timeout")
+					.param("time", "4")
+					//.retries(2)
+					.timeout(1000)
+					.fetch().as(Foo.class);
+			assert false;
 		} catch (IORException e) {
-			assertThat(StringUtils.countMatches(outContent.toString(), "Timeout error, retrying"), equalTo(5));
-		} finally {
-			resetSystemOutTest();
+			assertThat(callCounter.getCount(), equalTo(1));
 		}
 	}
 	

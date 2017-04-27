@@ -22,16 +22,14 @@
 
 package com.voodoodyne.hattery.util;
 
-import com.voodoodyne.hattery.test.DefaultBase;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * @author Jeff Schnitzer
  */
-class UrlUtilsTest extends DefaultBase {
+class UrlUtilsTest {
 	
 	private String encodedURL = "http%3A%2F%2Fvalidate.jsontest.com%3Fjson%3D%7Bfoo%3Abar%7D";
 	private String decodedURL = "http://validate.jsontest.com?json={foo:bar}";

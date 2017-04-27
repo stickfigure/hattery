@@ -22,52 +22,47 @@
 
 package com.voodoodyne.hattery.util;
 
-import com.voodoodyne.hattery.test.DefaultBase;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * @author Jeff Schnitzer
  */
-class LineWriterTest extends DefaultBase {
+class LineWriterTest {
 	
 	private static final String CRLF = "\r\n";
 	
-	/**
-	 * @throws IOException  */
+	/** */
 	@Test
 	void print() throws IOException {
-		configSystemOutForTest();
+		final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.print("f");
 		lineWriter.print("oo");
 		lineWriter.close();
 		assertThat(outContent.toString(), equalTo("foo"));
-		resetSystemOutTest();
 	}
 	
 	@Test
 	void printlnWithParameters() throws IOException {
-		configSystemOutForTest();
+		final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.println("f");
 		lineWriter.println("oo");
 		lineWriter.close();
 		assertThat(outContent.toString(), equalTo("f" + CRLF + "oo" + CRLF));
-		resetSystemOutTest();
 	}
 	
 	@Test
 	void printlnWithoutParameters() throws IOException {
-		configSystemOutForTest();
+		final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.println();
 		lineWriter.close();
 		assertThat(outContent.toString(), equalTo(CRLF));
-		resetSystemOutTest();
 	}
 }

@@ -25,9 +25,10 @@ package com.voodoodyne.hattery;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.voodoodyne.hattery.test.DefaultBase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -38,27 +39,28 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
- * @author Jeff Schnitzer
  */
-class HttpResponseTest extends DefaultBase {
+class HttpResponseTest {
 
-	private ListMultimap<String, String> fakeHeaders() {
-		ListMultimap<String, String> headers = ArrayListMultimap.create();
-		headers.put("Host", "host");
-		headers.put("User-Agent", "user-agent");
-		headers.put("Accept","accept");
-		return headers;
+	@Mock
+	private TransportResponse transportResponse;
+
+	@BeforeEach
+	void initMocks() {
+		MockitoAnnotations.initMocks(this);
 	}
 	
 	/** */
 	@Test
 	void getHeaders() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		Mockito.when(transportResponseMock.getHeaders()).thenReturn(fakeHeaders());
+		when(transportResponse.getHeaders()).thenReturn(fakeHeaders());
 		
-		HttpResponse response = new HttpResponse(transportResponseMock, new ObjectMapper());
+		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		
 		final Map<String, Collection<String>> headers = response.getHeaders().asMap();
 		assertThat(headers, hasKey("Host"));
@@ -69,36 +71,31 @@ class HttpResponseTest extends DefaultBase {
 	/** */
 	@Test
 	void getContent() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		byte[] byteTest = "test".getBytes();
-		Mockito.when(transportResponseMock.getContent()).thenReturn(byteTest);
+		final byte[] byteTest = "test".getBytes();
+		when(transportResponse.getContent()).thenReturn(byteTest);
 		
-		HttpResponse response = new HttpResponse(transportResponseMock, new ObjectMapper());
-		
+		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		assertThat(response.getContent(), equalTo(byteTest));
 	}
 	
 	/** */
 	@Test
 	void getContentStream() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
-		Mockito.when(transportResponseMock.getContentStream()).thenReturn(byteArrayInputStream);
+		final InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+		when(transportResponse.getContentStream()).thenReturn(byteArrayInputStream);
 		
-		HttpResponse response = new HttpResponse(transportResponseMock, new ObjectMapper());
-		
+		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		assertThat(response.getContentStream(), equalTo(byteArrayInputStream));
 	}
 	
 	/** */
 	@Test
 	void getSuccessContentStream() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
-		Mockito.when(transportResponseMock.getContentStream()).thenReturn(byteArrayInputStream);
+		final InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
+		when(transportResponse.getContentStream()).thenReturn(byteArrayInputStream);
 		
-		HttpResponse response = Mockito.spy(new HttpResponse(transportResponseMock, new ObjectMapper()));
-		Mockito.doReturn(response).when(response).succeed();
+		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
+		doReturn(response).when(response).succeed();
 		
 		assertThat(response.getSuccessContentStream(), equalTo(byteArrayInputStream));
 	}
@@ -106,12 +103,11 @@ class HttpResponseTest extends DefaultBase {
 	/** */
 	@Test
 	void getSuccessContent() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		byte[] byteTest = "test".getBytes();
-		Mockito.when(transportResponseMock.getContent()).thenReturn(byteTest);
+		final byte[] byteTest = "test".getBytes();
+		when(transportResponse.getContent()).thenReturn(byteTest);
 		
-		HttpResponse response = Mockito.spy(new HttpResponse(transportResponseMock, new ObjectMapper()));
-		Mockito.doReturn(response).when(response).succeed();
+		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
+		doReturn(response).when(response).succeed();
 		
 		assertThat(response.getSuccessContent(), equalTo(byteTest));
 	}
@@ -119,27 +115,32 @@ class HttpResponseTest extends DefaultBase {
 	/** */
 	@Test
 	void succeedSuccessful() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		Mockito.when(transportResponseMock.getResponseCode()).thenReturn(200);
+		when(transportResponse.getResponseCode()).thenReturn(200);
 		
-		HttpResponse response = new HttpResponse(transportResponseMock, new ObjectMapper());
+		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		assertThat(response.succeed(), equalTo(response));
 		
-		Mockito.when(transportResponseMock.getResponseCode()).thenReturn(304);
+		when(transportResponse.getResponseCode()).thenReturn(304);
 		assertThat(response.succeed(), equalTo(response));
 	}
 	
 	/** */
 	@Test
 	void succeedUnsuccessful() throws Exception {
-		TransportResponse transportResponseMock = Mockito.mock(TransportResponse.class);
-		Mockito.when(transportResponseMock.getResponseCode()).thenReturn(404);
+		when(transportResponse.getResponseCode()).thenReturn(404);
 		
-		HttpResponse response = new HttpResponse(transportResponseMock, new ObjectMapper());
+		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		
 		assertThrows(HttpException.class, () -> {
 			response.succeed();
 		});
 	}
 
+	private ListMultimap<String, String> fakeHeaders() {
+		ListMultimap<String, String> headers = ArrayListMultimap.create();
+		headers.put("Host", "host");
+		headers.put("User-Agent", "user-agent");
+		headers.put("Accept","accept");
+		return headers;
+	}
 }
