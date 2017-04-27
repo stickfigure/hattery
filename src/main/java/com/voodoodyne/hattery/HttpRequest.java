@@ -47,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * <p>Immutable definition of a request; methods return new immutable object with the data changed.</p>
@@ -96,6 +97,9 @@ public class HttpRequest {
 	/** */
 	private final ObjectMapper mapper;
 
+	/** */
+	private final Function<HttpRequest, HttpRequest> preflight;
+
 	/**
 	 * Default values
 	 */
@@ -110,12 +114,13 @@ public class HttpRequest {
 		this.mapper = new ObjectMapper();
 		this.contentType = null;
 		this.body = null;
+		this.preflight = Function.identity();
 	}
 
 	/** */
 	public HttpRequest method(String method) {
 		Preconditions.checkNotNull(method);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/** */
@@ -148,7 +153,7 @@ public class HttpRequest {
 	 */
 	public HttpRequest url(String url) {
 		Preconditions.checkNotNull(url);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
@@ -210,14 +215,14 @@ public class HttpRequest {
 	/** Private implementation lets us add anything, but don't expose that to the world */
 	private HttpRequest paramAnything(String name, Object value) {
 		final ImmutableMap<String, Object> params = new ImmutableMap.Builder<String, Object>().putAll(this.params).put(name, value).build();
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
 	 * Provide a body that will be turned into JSON.
 	 */
 	public HttpRequest body(Object body) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 	
 	/**
@@ -225,28 +230,28 @@ public class HttpRequest {
 	 */
 	public HttpRequest header(String name, String value) {
 		final ImmutableMap<String, String> headers = new ImmutableMap.Builder<String, String>().putAll(this.headers).put(name, value).build();
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 	
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
 	public HttpRequest timeout(int timeout) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
 	 * Set a retry count, or 0 for no retries
 	 */
 	public HttpRequest retries(int retries) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
 	 * Set the mapper. Be somewhat careful here, ObjectMappers are themselves not immutable (sigh).
 	 */
 	public HttpRequest mapper(ObjectMapper mapper) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
@@ -262,10 +267,37 @@ public class HttpRequest {
 	}
 
 	/**
+	 * <p>Just before doing the fetch work, run this function on the http request and actually do the fetch work
+	 * on the new value. This can be useful to (for example) sign requests.</p>
+	 *
+	 * <p>This method completely replaces the preflight function. The default preflight function is identity,
+	 * so you can safely {@code request.preflight(request.getPreflight().andThen(yourfunction)}</p>
+	 */
+	public HttpRequest preflight(final Function<HttpRequest, HttpRequest> function) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, function);
+	}
+
+	/**
+	 * A shortcut for {@code preflight(this.getPreflight().andThen(function)}. This method is probably what you
+	 * typically want to use when building up a request.
+	 */
+	public HttpRequest preflightAndThen(final Function<HttpRequest, HttpRequest> function) {
+		return preflight(preflight.andThen(function));
+	}
+
+	/**
 	 * Execute the request, providing the result in the response object - which might be an async wrapper, depending
 	 * on the transport.
 	 */
 	public HttpResponse fetch() {
+		final HttpRequest preflighted = preflight.apply(this);
+		return preflighted.doFetch();
+	}
+
+	/**
+	 * Actually do the work post-preflight
+	 */
+	private HttpResponse doFetch() {
 		Preconditions.checkState(url != null);
 
 		log.debug("Fetching {}", this);
