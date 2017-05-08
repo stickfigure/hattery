@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -178,6 +179,7 @@ public class HttpRequest {
 
 	/**
 	 * Set/override the parameter with a single value
+	 * @param value can be null to remove a parameter
 	 * @return the updated, immutable request
 	 */
 	public HttpRequest param(String name, Object value) {
@@ -186,14 +188,15 @@ public class HttpRequest {
 
 	/**
 	 * Set/override the parameter with a list of values
+	 * @param value can be empty or null to remove a parameter
 	 * @return the updated, immutable request
 	 */
 	public HttpRequest param(String name, List<Object> value) {
-		return paramAnything(name, ImmutableList.copyOf(value));
+		return paramAnything(name, value == null ? null : ImmutableList.copyOf(value));
 	}
 
 	/**
-	 * Set/override the parameters
+	 * Set/override the parameters. Values can be null to remove a parameter.
 	 * @return the updated, immutable request
 	 */
 	public HttpRequest param(Param... params) {
@@ -451,7 +454,12 @@ public class HttpRequest {
 	 */
 	private <T> Map<String, T> combine(final Map<String, T> old, final String newKey, final T newValue) {
 		final Map<String, T> combined = new LinkedHashMap<>(old);
-		combined.put(newKey, newValue);
+
+		if (newValue == null || (newValue instanceof Collection && ((Collection)newValue).isEmpty()))
+			combined.remove(newKey);
+		else
+			combined.put(newKey, newValue);
+
 		return Collections.unmodifiableMap(combined);
 	}
 }

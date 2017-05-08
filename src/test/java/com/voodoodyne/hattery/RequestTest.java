@@ -93,6 +93,16 @@ class RequestTest {
 	}
 
 	/** */
+	@Test
+	void paramsCanBeRemoved() throws Exception {
+		final String url = Requests.MD5_ENDPOINT
+				.param("text", "notexample")
+				.param("text", null)
+				.toUrlString();
+		assertThat(url, equalTo("http://md5.jsontest.com"));
+	}
+
+	/** */
 	@SuppressWarnings("unchecked")
 	@Test
 	void pathsAreSubmitted() throws Exception {
