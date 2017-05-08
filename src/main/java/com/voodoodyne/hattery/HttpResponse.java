@@ -91,7 +91,7 @@ public class HttpResponse {
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(Class<T> type) throws HttpException, IORException {
+	public <T> T as(final Class<T> type) throws HttpException, IORException {
 		return succeed().contentAs(type);
 	}
 
@@ -99,7 +99,7 @@ public class HttpResponse {
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(TypeReference<T> type) throws HttpException, IORException  {
+	public <T> T as(final TypeReference<T> type) throws HttpException, IORException  {
 		return succeed().contentAs(type);
 	}
 
@@ -107,14 +107,14 @@ public class HttpResponse {
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(JavaType type) throws HttpException, IORException  {
+	public <T> T as(final JavaType type) throws HttpException, IORException  {
 		return succeed().contentAs(type);
 	}
 
 	/**
 	 * Convert the response (whether success or error) to a JSON object using Jackson.
 	 */
-	public <T> T contentAs(Class<T> type) throws IORException  {
+	public <T> T contentAs(final Class<T> type) throws IORException  {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
@@ -125,7 +125,7 @@ public class HttpResponse {
 	/**`
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
 	 */
-	public <T> T contentAs(TypeReference<T> type) throws IORException  {
+	public <T> T contentAs(final TypeReference<T> type) throws IORException  {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
@@ -136,7 +136,7 @@ public class HttpResponse {
 	/**
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
 	 */
-	public <T> T contentAs(JavaType type) throws IORException  {
+	public <T> T contentAs(final JavaType type) throws IORException  {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {

@@ -36,17 +36,17 @@ public final class LineWriter extends BufferedWriter {
 	private static final String CRLF = "\r\n";
 	
 	/** */
-	public LineWriter(OutputStream out) throws IOException {
+	public LineWriter(final OutputStream out) throws IOException {
 		super(new OutputStreamWriter(out, "utf-8"));
 	}
 	
 	/** */
-	public void print(String s) throws IOException {
+	public void print(final String s) throws IOException {
 		this.write(s);
 	}
 	
 	/** */
-	public void println(String s) throws IOException {
+	public void println(final String s) throws IOException {
 		this.print(s);
 		this.println();
 	}

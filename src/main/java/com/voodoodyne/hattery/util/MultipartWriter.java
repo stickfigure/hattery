@@ -48,14 +48,14 @@ public class MultipartWriter {
 	private final OutputStream out;
 
 	/** */
-	public MultipartWriter(OutputStream out) throws IOException {
+	public MultipartWriter(final OutputStream out) throws IOException {
 		this.out = out;
 	}
 
 	/**
 	 * Write the params as multipart/form-data.  Params can include BinaryAttachemnt objects.
 	 */
-	public void write(Map<String, Object> params) throws IOException {
+	public void write(final Map<String, Object> params) throws IOException {
 		LineWriter writer = new LineWriter(this.out);
 		try {
 			for (Map.Entry<String, Object> param: params.entrySet()) {

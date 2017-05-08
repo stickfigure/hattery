@@ -37,7 +37,7 @@ abstract public class Transport {
 	}
 
 	/** Shorthand for request().url(url) */
-	public HttpRequest request(String url) {
+	public HttpRequest request(final String url) {
 		return request().url(url);
 	}
 
@@ -49,5 +49,5 @@ abstract public class Transport {
 	/**
 	 * Executes the specified request once. Does not need to handle retries.
 	 */
-	abstract public TransportResponse fetch(HttpRequest request) throws IOException;
+	abstract public TransportResponse fetch(final HttpRequest request) throws IOException;
 }

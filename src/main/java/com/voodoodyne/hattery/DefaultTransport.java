@@ -44,7 +44,7 @@ import java.util.Map;
 public class DefaultTransport extends Transport {
 
 	@Override
-	public TransportResponse fetch(HttpRequest request) throws IOException {
+	public TransportResponse fetch(final HttpRequest request) throws IOException {
 		for (int i = 0; i <= request.getRetries(); i++) {
 			try {
 				return executeOnce(request);
@@ -69,7 +69,7 @@ public class DefaultTransport extends Transport {
 	}
 
 	/** */
-	private TransportResponse executeOnce(HttpRequest request) throws IOException {
+	private TransportResponse executeOnce(final HttpRequest request) throws IOException {
 
 		final HttpURLConnection conn = (HttpURLConnection)request.toUrl().openConnection();
 		conn.setRequestMethod(request.getMethod());

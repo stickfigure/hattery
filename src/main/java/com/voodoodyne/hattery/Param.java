@@ -35,7 +35,7 @@ import java.util.List;
 @Data
 public class Param {
 	/** Make a new array with the extra parameters tacked on */
-	public static Param[] concat(final Param[] base, Param... params) {
+	public static Param[] concat(final Param[] base, final Param... params) {
 		final Param[] result = Arrays.copyOf(base, base.length + params.length);
 		System.arraycopy(params, 0, result, result.length, params.length);
 		return result;
@@ -49,21 +49,21 @@ public class Param {
 
 	/**
 	 */
-	public Param(String name, Object value) {
+	public Param(final String name, final Object value) {
 		this.name = name;
 		this.value = value;
 	}
 
 	/**
 	 */
-	public Param(String name, List<Object> value) {
+	public Param(final String name, final List<Object> value) {
 		this.name = name;
 		this.value = value;
 	}
 
 	/**
 	 */
-	public Param(String name, InputStream stream, String contentType, String filename) {
+	public Param(final String name, final InputStream stream, final String contentType, final String filename) {
 		this.name = name;
 		this.value = new BinaryAttachment(stream, contentType, filename);
 	}

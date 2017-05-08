@@ -13,25 +13,25 @@ public class TeeOutputStream extends OutputStream {
 	@Getter
 	private final OutputStream two;
 
-	public TeeOutputStream(OutputStream one, OutputStream two) {
+	public TeeOutputStream(final OutputStream one, final OutputStream two) {
 		this.one = one;
 		this.two = two;
 	}
 
 	@Override
-	public void write(int b) throws IOException {
+	public void write(final int b) throws IOException {
 		one.write(b);
 		two.write(b);
 	}
 
 	@Override
-	public void write(byte[] b) throws IOException {
+	public void write(final byte[] b) throws IOException {
 		one.write(b);
 		two.write(b);
 	}
 
 	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
+	public void write(final byte[] b, final int off, final int len) throws IOException {
 		one.write(b, off, len);
 		two.write(b, off, len);
 	}

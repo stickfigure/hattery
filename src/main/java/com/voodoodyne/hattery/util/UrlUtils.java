@@ -34,7 +34,7 @@ public final class UrlUtils
 	/**
 	 * Masks the useless checked exception from URLEncoder.encode()
 	 */
-	public static String urlEncode(String string) {
+	public static String urlEncode(final String string) {
 		try {
 			return URLEncoder.encode(string, "utf-8");
 		} catch (UnsupportedEncodingException e) {
@@ -45,7 +45,7 @@ public final class UrlUtils
 	/**
 	 * Masks the useless checked exception from URLDecoder.decode()
 	 */
-	public static String urlDecode(String string) {
+	public static String urlDecode(final String string) {
 		try {
 			return URLDecoder.decode(string, "utf-8");
 		} catch (UnsupportedEncodingException e) {

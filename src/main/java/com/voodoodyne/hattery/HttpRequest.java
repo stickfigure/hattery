@@ -104,7 +104,7 @@ public class HttpRequest {
 	/**
 	 * Default values
 	 */
-	public HttpRequest(Transport transport) {
+	public HttpRequest(final Transport transport) {
 		this.transport = transport;
 		this.method = HttpMethod.GET.name();
 		this.url = null;
@@ -119,13 +119,13 @@ public class HttpRequest {
 	}
 
 	/** */
-	public HttpRequest method(String method) {
+	public HttpRequest method(final String method) {
 		Preconditions.checkNotNull(method);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/** */
-	public HttpRequest method(HttpMethod method) {
+	public HttpRequest method(final HttpMethod method) {
 		return method(method.name());
 	}
 
@@ -152,7 +152,7 @@ public class HttpRequest {
 	/**
 	 * Replaces the existing url wholesale
 	 */
-	public HttpRequest url(String url) {
+	public HttpRequest url(final String url) {
 		Preconditions.checkNotNull(url);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
@@ -162,14 +162,14 @@ public class HttpRequest {
 	 * Ensures this is a separate path segment by adding or removing a leading '/' if necessary.
 	 * @path is converted to a string via toString()
 	 */
-	public HttpRequest path(Object path) {
+	public HttpRequest path(final Object path) {
 		Preconditions.checkNotNull(path);
 		String url2 = (url == null) ? path.toString() : concatPath(url, path.toString());
 		return url(url2);
 	}
 
 	/** Check for slashes */
-	private String concatPath(String url, String path) {
+	private String concatPath(final String url, final String path) {
 		if (url.endsWith("/")) {
 			return path.startsWith("/") ? (url + path.substring(1)) : (url + path);
 		} else {
@@ -182,7 +182,7 @@ public class HttpRequest {
 	 * @param value can be null to remove a parameter
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest param(String name, Object value) {
+	public HttpRequest param(final String name, final Object value) {
 		return paramAnything(name, value);
 	}
 
@@ -191,7 +191,7 @@ public class HttpRequest {
 	 * @param value can be empty or null to remove a parameter
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest param(String name, List<Object> value) {
+	public HttpRequest param(final String name, final List<Object> value) {
 		return paramAnything(name, value == null ? null : ImmutableList.copyOf(value));
 	}
 
@@ -199,7 +199,7 @@ public class HttpRequest {
 	 * Set/override the parameters. Values can be null to remove a parameter.
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest param(Param... params) {
+	public HttpRequest param(final Param... params) {
 		HttpRequest here = this;
 		for (Param param: params)
 			here = paramAnything(param.getName(), param.getValue());
@@ -210,13 +210,13 @@ public class HttpRequest {
 	/**
 	 * Set/override the parameter with a binary attachment.
 	 */
-	public HttpRequest param(String name, InputStream stream, String contentType, String filename) {
+	public HttpRequest param(final String name, final InputStream stream, final String contentType, final String filename) {
 		final BinaryAttachment attachment = new BinaryAttachment(stream, contentType, filename);
 		return POST().paramAnything(name, attachment);
 	}
 
 	/** Private implementation lets us add anything, but don't expose that to the world */
-	private HttpRequest paramAnything(String name, Object value) {
+	private HttpRequest paramAnything(final String name, final Object value) {
 		final Map<String, Object> params = combine(this.params, name, value);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
@@ -224,14 +224,14 @@ public class HttpRequest {
 	/**
 	 * Provide a body that will be turned into JSON.
 	 */
-	public HttpRequest body(Object body) {
+	public HttpRequest body(final Object body) {
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 	
 	/**
 	 * Sets/overrides a header.  Value is not encoded in any particular way.
 	 */
-	public HttpRequest header(String name, String value) {
+	public HttpRequest header(final String name, final String value) {
 		final Map<String, String> headers = combine(this.headers, name, value);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
@@ -239,28 +239,28 @@ public class HttpRequest {
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
-	public HttpRequest timeout(int timeout) {
+	public HttpRequest timeout(final int timeout) {
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
 	 * Set a retry count, or 0 for no retries
 	 */
-	public HttpRequest retries(int retries) {
+	public HttpRequest retries(final int retries) {
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
 	 * Set the mapper. Be somewhat careful here, ObjectMappers are themselves not immutable (sigh).
 	 */
-	public HttpRequest mapper(ObjectMapper mapper) {
+	public HttpRequest mapper(final ObjectMapper mapper) {
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/**
 	 * Set the basic auth header
 	 */
-	public HttpRequest basicAuth(String username, String password) {
+	public HttpRequest basicAuth(final String username, final String password) {
 		final String basic = username + ':' + password;
 
 		// There is no standard for charset, might as well use utf-8

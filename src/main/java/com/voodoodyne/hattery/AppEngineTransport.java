@@ -57,12 +57,12 @@ public class AppEngineTransport extends Transport {
 	}
 
 	/** Handy if you want to pass in a mock */
-	public AppEngineTransport(URLFetchService fetchService) {
+	public AppEngineTransport(final URLFetchService fetchService) {
 		this.fetchService = fetchService;
 	}
 
 	@Override
-	public TransportResponse fetch(HttpRequest request) throws IOException {
+	public TransportResponse fetch(final HttpRequest request) throws IOException {
 		final HTTPRequest gaeRequest = new HTTPRequest(request.toUrl(), HTTPMethod.valueOf(request.getMethod()), defaultOptions());
 
 		if (request.getTimeout() > 0)
