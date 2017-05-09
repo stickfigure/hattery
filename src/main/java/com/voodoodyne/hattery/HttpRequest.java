@@ -230,6 +230,7 @@ public class HttpRequest {
 	
 	/**
 	 * Sets/overrides a header.  Value is not encoded in any particular way.
+	 * @param value can be null to remove a header
 	 */
 	public HttpRequest header(final String name, final String value) {
 		final Map<String, String> headers = combine(this.headers, name, value);
