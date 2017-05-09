@@ -89,7 +89,7 @@ public class HttpRequest {
 	/** */
 	private final Map<String, String> headers;
 
-	/** 0 for no explicit timeout (aka default) */
+	/** 0 for no explicit timeout (aka default), otherwise measured in millis */
 	private final int timeout;
 
 	/** 0 for no retries */
@@ -239,8 +239,8 @@ public class HttpRequest {
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
-	public HttpRequest timeout(final int timeout) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+	public HttpRequest timeout(final int millis) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, millis, retries, mapper, preflight);
 	}
 
 	/**
