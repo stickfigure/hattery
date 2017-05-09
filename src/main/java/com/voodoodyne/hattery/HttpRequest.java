@@ -227,7 +227,15 @@ public class HttpRequest {
 	public HttpRequest body(final Object body) {
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
-	
+
+	/**
+	 * Provide an explicit Content-Type. Otherwise content type will be crudely inferred (typically as
+	 * json, form encoded, or multipart). If you're doing anything unusual, set an explicit content type.
+	 */
+	public HttpRequest contentType(final String value) {
+		return new HttpRequest(transport, method, url, params, value, body, headers, timeout, retries, mapper, preflight);
+	}
+
 	/**
 	 * Sets/overrides a header.  Value is not encoded in any particular way.
 	 * @param value can be null to remove a header

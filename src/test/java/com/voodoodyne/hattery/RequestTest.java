@@ -62,6 +62,19 @@ class RequestTest {
 		assertThat(headers, hasEntry("foo", "yyy"));
 	}
 
+	/** */
+	@Test
+	@SuppressWarnings("unchecked")
+	void contentTypeCanBeSpecified() throws Exception {
+		final Map<String, String> headers = Requests.HEADERS_ENDPOINT
+				.header("foo", "bar")
+				.contentType("not/real")
+				.fetch().as(Map.class);
+
+		assertThat(headers, hasEntry("foo", "bar"));
+		assertThat(headers, hasEntry("Content-Type", "not/real"));
+	}
+
 	@Data
 	private static class MD5Response {
 		private final String md5;
