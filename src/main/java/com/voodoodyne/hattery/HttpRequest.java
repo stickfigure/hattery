@@ -368,37 +368,48 @@ public class HttpRequest {
 	}
 
 	/**
-	 * Write any body content, if appropriate
+	 * Write any body content, if appropriate. Will debug log body if reasonable to do so.
 	 */
 	public void writeBody(OutputStream output) throws IOException {
-		if (log.isDebugEnabled()) {
-			output = new TeeOutputStream(output, new ByteArrayOutputStream());
-		}
-
 		final String ctype = getContentType();
 
 		if (MultipartWriter.CONTENT_TYPE.equals(ctype)) {
+			output = tee(output);
 			MultipartWriter writer = new MultipartWriter(output);
 			writer.write(params);
 		}
 		else if (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING)) {
+			output = tee(output);
 			final String queryString = getQuery();
 			output.write(queryString.getBytes(StandardCharsets.UTF_8));
 		}
 		else if (body instanceof byte[]) {
+			// Don't tee, probably binary
 			output.write((byte[])body);
+			log.debug("Wrote byte[] body of length {}", ((byte[])body).length);
 		}
 		else if (body instanceof InputStream) {
-			ByteStreams.copy((InputStream)body, output);
+			// Don't tee, probably binary
+			final long length = ByteStreams.copy((InputStream)body, output);
+			log.debug("Wrote InputStream body of length {}", length);
 		}
 		else if (APPLICATION_JSON.equals(ctype)) {
+			output = tee(output);
 			mapper.writeValue(output, body);
 		}
 
-		if (log.isDebugEnabled()) {
+		if (output instanceof TeeOutputStream) {
 			byte[] bytes = ((ByteArrayOutputStream)((TeeOutputStream)output).getTwo()).toByteArray();
 			if (bytes.length > 0)
-				log.debug("Wrote body: {}", new String(bytes, StandardCharsets.UTF_8));	// not necessarily utf8 but best choice available
+				log.debug("Wrote body: {}", new String(bytes, StandardCharsets.UTF_8));
+		}
+	}
+
+	private OutputStream tee(final OutputStream output) {
+		if (log.isDebugEnabled()) {
+			return new TeeOutputStream(output, new ByteArrayOutputStream());
+		} else {
+			return output;
 		}
 	}
 
