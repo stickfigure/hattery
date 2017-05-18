@@ -33,7 +33,7 @@ import java.io.OutputStreamWriter;
  */
 public final class LineWriter extends BufferedWriter {
 	
-	private static final String CRLF = "\r\n";
+	public static final String CRLF = "\r\n";
 	
 	/** */
 	public LineWriter(final OutputStream out) throws IOException {

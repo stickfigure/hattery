@@ -69,13 +69,13 @@ public class MultipartWriter {
 				if (param.getValue() instanceof BinaryAttachment) {
 					final BinaryAttachment ba = (BinaryAttachment)param.getValue();
 					final String headers =
-							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\""
-							+ "\nContent-Type: " + ba.getContentType()
-							+ "\nContent-Transfer-Encoding: binary";
+							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\"" + LineWriter.CRLF
+							+ "Content-Type: " + ba.getContentType() + LineWriter.CRLF
+							+ "Content-Transfer-Encoding: binary" + LineWriter.CRLF;
 
 					log.debug("Writing binary part:\n" + headers);
 
-					writer.println(headers);
+					writer.print(headers);
 					writer.println();
 					writer.flush();
 					// Now output the binary part to the raw stream
@@ -84,8 +84,9 @@ public class MultipartWriter {
 					while ((read = ba.getData().read(chunk)) > 0)
 						this.out.write(chunk, 0, read);
 				} else {
-					final String part = "Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\""
-							+ "\n\n"
+					final String part =
+							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"" + LineWriter.CRLF
+							+ LineWriter.CRLF
 							+ param.getValue().toString();	// how to encode this?
 
 					log.debug("Writing part:\n" + part);
