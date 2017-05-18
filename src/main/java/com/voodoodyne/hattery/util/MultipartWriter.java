@@ -54,6 +54,8 @@ public class MultipartWriter {
 
 	/**
 	 * Write the params as multipart/form-data.  Params can include BinaryAttachemnt objects.
+	 *
+	 * Note that the Content-Disposition name is not urlencoded.
 	 */
 	public void write(final Map<String, Object> params) throws IOException {
 		final LineWriter writer = new LineWriter(this.out);
@@ -63,7 +65,7 @@ public class MultipartWriter {
 
 				if (param.getValue() instanceof BinaryAttachment) {
 					final BinaryAttachment ba = (BinaryAttachment)param.getValue();
-					writer.println("Content-Disposition: form-data; name=\"" + UrlUtils.urlEncode(param.getKey()) + "\"; filename=\"" + UrlUtils.urlEncode(ba.getFilename()) + "\"");
+					writer.println("Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\"");
 					writer.println("Content-Type: " + ba.getContentType());
 					writer.println("Content-Transfer-Encoding: binary");
 					writer.println();
@@ -74,7 +76,7 @@ public class MultipartWriter {
 					while ((read = ba.getData().read(chunk)) > 0)
 						this.out.write(chunk, 0, read);
 				} else {
-					writer.println("Content-Disposition: form-data; name=\"" + UrlUtils.urlEncode(param.getKey()) + "\"");
+					writer.println("Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"");
 					writer.println();
 					writer.println(UrlUtils.urlEncode(param.getValue().toString()));
 				}
@@ -85,5 +87,16 @@ public class MultipartWriter {
 		} finally {
 			writer.close();
 		}
+	}
+
+	/**
+	 * <p>It looks like we just do quote esacping for headers</p>
+	 * <ul>
+	 *     <li>\ -> \\</li>
+	 *     <li>" -> \"</li>
+	 * </ul>
+	 */
+	private String escapeQuotes(final String value) {
+		return value.replace("\\", "\\\\").replace("\"", "\\\"");
 	}
 }
