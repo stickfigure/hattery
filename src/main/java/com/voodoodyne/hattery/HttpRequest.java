@@ -383,7 +383,7 @@ public class HttpRequest {
 		final String ctype = getContentType();
 
 		if (MultipartWriter.CONTENT_TYPE.equals(ctype)) {
-			output = tee(output);
+			log.debug("Writing multipart body");
 			MultipartWriter writer = new MultipartWriter(output);
 			writer.write(params);
 		}

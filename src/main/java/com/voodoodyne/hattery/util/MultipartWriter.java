@@ -23,6 +23,8 @@
 package com.voodoodyne.hattery.util;
 
 import com.voodoodyne.hattery.BinaryAttachment;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
@@ -34,6 +36,7 @@ import java.util.Map;
  *
  * @author Jeff Schnitzer
  */
+@Slf4j
 public class MultipartWriter {
 
 	/** */
@@ -65,9 +68,14 @@ public class MultipartWriter {
 
 				if (param.getValue() instanceof BinaryAttachment) {
 					final BinaryAttachment ba = (BinaryAttachment)param.getValue();
-					writer.println("Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\"");
-					writer.println("Content-Type: " + ba.getContentType());
-					writer.println("Content-Transfer-Encoding: binary");
+					final String headers =
+							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\""
+							+ "\nContent-Type: " + ba.getContentType()
+							+ "\nContent-Transfer-Encoding: binary";
+
+					log.debug("Writing binary part:\n" + headers);
+
+					writer.println(headers);
 					writer.println();
 					writer.flush();
 					// Now output the binary part to the raw stream
@@ -76,9 +84,13 @@ public class MultipartWriter {
 					while ((read = ba.getData().read(chunk)) > 0)
 						this.out.write(chunk, 0, read);
 				} else {
-					writer.println("Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"");
-					writer.println();
-					writer.println(UrlUtils.urlEncode(param.getValue().toString()));
+					final String part = "Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\""
+							+ "\n\n"
+							+ param.getValue().toString();	// how to encode this?
+
+					log.debug("Writing part:\n" + part);
+
+					writer.print(part);
 				}
 			}
 
