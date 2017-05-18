@@ -56,13 +56,13 @@ public class MultipartWriter {
 	 * Write the params as multipart/form-data.  Params can include BinaryAttachemnt objects.
 	 */
 	public void write(final Map<String, Object> params) throws IOException {
-		LineWriter writer = new LineWriter(this.out);
+		final LineWriter writer = new LineWriter(this.out);
 		try {
-			for (Map.Entry<String, Object> param: params.entrySet()) {
+			for (final Map.Entry<String, Object> param: params.entrySet()) {
 				writer.println(MULTIPART_BOUNDARY_SEPARATOR);
 
 				if (param.getValue() instanceof BinaryAttachment) {
-					BinaryAttachment ba = (BinaryAttachment)param.getValue();
+					final BinaryAttachment ba = (BinaryAttachment)param.getValue();
 					writer.println("Content-Disposition: form-data; name=\"" + UrlUtils.urlEncode(param.getKey()) + "\"; filename=\"" + UrlUtils.urlEncode(ba.getFilename()) + "\"");
 					writer.println("Content-Type: " + ba.getContentType());
 					writer.println("Content-Transfer-Encoding: binary");
@@ -70,7 +70,7 @@ public class MultipartWriter {
 					writer.flush();
 					// Now output the binary part to the raw stream
 					int read;
-					byte[] chunk = new byte[8192];
+					final byte[] chunk = new byte[8192];
 					while ((read = ba.getData().read(chunk)) > 0)
 						this.out.write(chunk, 0, read);
 				} else {
