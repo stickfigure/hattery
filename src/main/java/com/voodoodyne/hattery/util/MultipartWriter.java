@@ -91,7 +91,7 @@ public class MultipartWriter {
 
 					log.debug("Writing part:\n" + part);
 
-					writer.print(part);
+					writer.println(part);
 				}
 			}
 
