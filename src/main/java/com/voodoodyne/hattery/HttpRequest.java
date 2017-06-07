@@ -160,7 +160,7 @@ public class HttpRequest {
 	/**
 	 * Appends path to the existing url. If no url is not set, this becomes the url.
 	 * Ensures this is a separate path segment by adding or removing a leading '/' if necessary.
-	 * @path is converted to a string via toString()
+	 * @param path is converted to a string via toString()
 	 */
 	public HttpRequest path(final Object path) {
 		Preconditions.checkNotNull(path);
@@ -477,8 +477,9 @@ public class HttpRequest {
 	}
 
 	/**
-	 * Creates a string representing the current query string, or an empty string if there are no parameters.
-	 * Will not work if there are binary attachments!
+	 * Creates a string representing what would be submitted as a query string for the current request, or an empty
+	 * string if there are no parameters. A '?' will not be included. POST parameters are typically sent as part
+	 * of the body and will therefore not be included here.
 	 */
 	public String getQuery() {
 		if (paramsAreInContent())
@@ -488,8 +489,7 @@ public class HttpRequest {
 	}
 
 	/**
-	 * Creates a string representing the current query string, or an empty string if there are no parameters.
-	 * Will not work if there are binary attachments!
+	 * Convert params to a query string no matter what
 	 */
 	private String getQuery(final Map<String, Object> params) {
 		if (params.isEmpty())
