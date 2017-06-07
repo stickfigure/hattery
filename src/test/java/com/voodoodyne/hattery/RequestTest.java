@@ -164,4 +164,20 @@ class RequestTest {
 
 		assertThat(validate.isValidate(), equalTo(true));
 	}
+
+	/** */
+	@Test
+	void queryParamsAreForcedEvenWhenPostingFormData() {
+		final HttpRequest request = new DefaultTransport().request().url("http://example.com").POST().param("foo", "bar").queryParam("foo2", "bar2");
+
+		assertThat(request.toUrlString(), equalTo("http://example.com?foo2=bar2"));
+	}
+
+	/** */
+	@Test
+	void multipleParamObjectsCanBePassed() {
+		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param(new Param("foo", "bar"), new Param("foo2", "bar2"));
+
+		assertThat(request.toUrlString(), equalTo("http://example.com?foo=bar&foo2=bar2"));
+	}
 }

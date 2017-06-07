@@ -202,7 +202,7 @@ public class HttpRequest {
 	public HttpRequest param(final Param... params) {
 		HttpRequest here = this;
 		for (Param param: params)
-			here = paramAnything(param.getName(), param.getValue());
+			here = here.paramAnything(param.getName(), param.getValue());
 
 		return here;
 	}
@@ -213,6 +213,43 @@ public class HttpRequest {
 	public HttpRequest param(final String name, final InputStream stream, final String contentType, final String filename) {
 		final BinaryAttachment attachment = new BinaryAttachment(stream, contentType, filename);
 		return POST().paramAnything(name, attachment);
+	}
+
+	/**
+	 * Set/override the parameter with a single value, forcing the parameter to be part of the query string
+	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
+	 * does the right thing.
+	 * @param value can be null to remove a parameter
+	 * @return the updated, immutable request
+	 */
+	public HttpRequest queryParam(final String name, final Object value) {
+		return paramAnything(name, QueryParamValue.of(value));
+	}
+
+	/**
+	 * Set/override the parameter with a list of values, forcing the parameter to be part of the query string
+	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
+	 * does the right thing.
+	 * @param value can be empty or null to remove a parameter
+	 * @return the updated, immutable request
+	 */
+	public HttpRequest queryParam(final String name, final List<Object> value) {
+		return paramAnything(name, value == null ? null : QueryParamValue.of(ImmutableList.copyOf(value)));
+	}
+
+	/**
+	 * Set/override the parameters, forcing the parameter to be part of the query string
+	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
+	 * does the right thing.
+	 * @param params can have null values to remove a parameter.
+	 * @return the updated, immutable request
+	 */
+	public HttpRequest queryParam(final Param... params) {
+		HttpRequest here = this;
+		for (Param param: params)
+			here = here.paramAnything(param.getName(), QueryParamValue.of(param.getValue()));
+
+		return here;
 	}
 
 	/** Private implementation lets us add anything, but don't expose that to the world */
@@ -335,12 +372,8 @@ public class HttpRequest {
 	 * @return the full url for this request, with appropriate parameters
 	 */
 	public String toUrlString() {
-		if (paramsAreInContent()) {
-			return getUrl();
-		} else {
-			final String queryString = getQuery();
-			return queryString.isEmpty() ? getUrl() : (getUrl() + "?" + queryString);
-		}
+		final String queryString = getQuery();
+		return queryString.isEmpty() ? getUrl() : (getUrl() + "?" + queryString);
 	}
 
 	/**
@@ -385,11 +418,11 @@ public class HttpRequest {
 		if (MultipartWriter.CONTENT_TYPE.equals(ctype)) {
 			log.debug("Writing multipart body");
 			MultipartWriter writer = new MultipartWriter(output);
-			writer.write(params);
+			writer.write(QueryParamValue.filterOut(params));
 		}
 		else if (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING)) {
 			output = tee(output);
-			final String queryString = getQuery();
+			final String queryString = getQuery(QueryParamValue.filterOut(params));
 			output.write(queryString.getBytes(StandardCharsets.UTF_8));
 		}
 		else if (body instanceof byte[]) {
@@ -448,23 +481,33 @@ public class HttpRequest {
 	 * Will not work if there are binary attachments!
 	 */
 	public String getQuery() {
+		if (paramsAreInContent())
+			return getQuery(QueryParamValue.filterIn(this.params));
+		else
+			return getQuery(this.params);
+	}
 
-		if (this.getParams().isEmpty())
+	/**
+	 * Creates a string representing the current query string, or an empty string if there are no parameters.
+	 * Will not work if there are binary attachments!
+	 */
+	private String getQuery(final Map<String, Object> params) {
+		if (params.isEmpty())
 			return "";
-		
+
 		StringBuilder bld = null;
-		
-		for (Map.Entry<String, Object> param: this.params.entrySet()) {
+
+		for (Map.Entry<String, Object> param: params.entrySet()) {
 			if (bld == null)
 				bld = new StringBuilder();
 			else
 				bld.append('&');
-			
+
 			bld.append(UrlUtils.urlEncode(param.getKey()));
 			bld.append('=');
-			bld.append(UrlUtils.urlEncode(param.getValue().toString()));
+			bld.append(UrlUtils.urlEncode(QueryParamValue.strip(param.getValue()).toString()));
 		}
-		
+
 		return bld.toString();
 	}
 
