@@ -92,6 +92,7 @@ Some extra features:
  * `Content-Type` determines what is to be done with the `body()` and `param()`s (if either are present).
  * Unspecified `Content-Type` is inferred:
    * If there is a `body()`, `application/json` is assumed. Any `param()`s will become query parameters.
-   * If `POST()` and no `body()`, `application/x-www-form-urlencoded` will be submitted
+   * If `POST()` and no `body()`, parameters will be submitted as `application/x-www-form-urlencoded`
      * ...unless a `BinaryAttachment` parameter is included, in which case the content becomes `multipart/form-data`.
+     * ...or unless params are submitted as `queryParam()`, which forces them onto the query string.
  * To run multiple async fetches concurrently with Google App Engine, use the `AppEngineTransport` and `fetch()` multiple `HttpResponse` objects. Getting the content of the response (say, via `as()`) completes the underlying asynchronous `Future`.
