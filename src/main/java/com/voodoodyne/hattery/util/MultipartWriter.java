@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>Tool which writes multipart/form-data to a stream.</p>
@@ -40,7 +41,7 @@ import java.util.Map;
 public class MultipartWriter {
 
 	/** */
-	private static final String MULTIPART_BOUNDARY = "**** an awful string which should never exist naturally ****" + Math.random();
+	private static final String MULTIPART_BOUNDARY = "MultipartFormBoundary" + UUID.randomUUID().toString().replace("-", "");
 	private static final String MULTIPART_BOUNDARY_SEPARATOR = "--" + MULTIPART_BOUNDARY;
 	private static final String MULTIPART_BOUNDARY_END = MULTIPART_BOUNDARY_SEPARATOR + "--";
 
@@ -76,13 +77,17 @@ public class MultipartWriter {
 					log.debug("Writing binary part:\n" + headers);
 
 					writer.print(headers);
-					writer.println();
+					writer.println();	// Extra blank line required after headers
 					writer.flush();
+
 					// Now output the binary part to the raw stream
 					int read;
 					final byte[] chunk = new byte[8192];
 					while ((read = ba.getData().read(chunk)) > 0)
 						this.out.write(chunk, 0, read);
+
+					// Yes, even with binary, a blank line is expected
+					writer.println();
 				} else {
 					final String part =
 							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"" + LineWriter.CRLF
