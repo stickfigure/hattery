@@ -22,11 +22,13 @@
 
 package com.voodoodyne.hattery;
 
-import com.voodoodyne.hattery.test.ValidateResponse;
 import com.voodoodyne.hattery.test.Requests;
+import com.voodoodyne.hattery.test.ValidateResponse;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Jeff Schnitzer
  */
-class RequestTest {
+class HttpRequestTest {
 
 	/** */
 	@Test
@@ -179,5 +181,14 @@ class RequestTest {
 		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param(new Param("foo", "bar"), new Param("foo2", "bar2"));
 
 		assertThat(request.toUrlString(), equalTo("http://example.com?foo=bar&foo2=bar2"));
+	}
+
+	/** */
+	@Test
+	void listParamsBecomeMultipleEntries() {
+		final List<String> list = Arrays.asList("foo", "bar");
+		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param("baz", list);
+
+		assertThat(request.toUrlString(), equalTo("http://example.com?baz=foo&baz=bar"));
 	}
 }

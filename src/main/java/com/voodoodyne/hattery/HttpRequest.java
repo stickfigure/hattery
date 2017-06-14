@@ -28,8 +28,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.voodoodyne.hattery.util.MultipartWriter;
+import com.voodoodyne.hattery.util.QueryBuilder;
 import com.voodoodyne.hattery.util.TeeOutputStream;
-import com.voodoodyne.hattery.util.UrlUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,10 +43,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -178,21 +176,15 @@ public class HttpRequest {
 	}
 
 	/**
-	 * Set/override the parameter with a single value
-	 * @param value can be null to remove a parameter
+	 * Set/override the parameter. If the value is iterable, this will create multiple parameter entries in the query.
+	 * @param value can be null to remove a parameter, or Iterable to create multiple values
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest param(final String name, final Object value) {
-		return paramAnything(name, value);
-	}
+	public HttpRequest param(final String name, Object value) {
+		if (value instanceof Iterable)
+			value = ImmutableList.copyOf((Iterable<?>)value);
 
-	/**
-	 * Set/override the parameter with a list of values
-	 * @param value can be empty or null to remove a parameter
-	 * @return the updated, immutable request
-	 */
-	public HttpRequest param(final String name, final List<Object> value) {
-		return paramAnything(name, value == null ? null : ImmutableList.copyOf(value));
+		return paramAnything(name, value);
 	}
 
 	/**
@@ -202,7 +194,7 @@ public class HttpRequest {
 	public HttpRequest param(final Param... params) {
 		HttpRequest here = this;
 		for (Param param: params)
-			here = here.paramAnything(param.getName(), param.getValue());
+			here = here.param(param.getName(), param.getValue());
 
 		return here;
 	}
@@ -216,25 +208,17 @@ public class HttpRequest {
 	}
 
 	/**
-	 * Set/override the parameter with a single value, forcing the parameter to be part of the query string
+	 * Set/override the parameter with a value, forcing the parameter to be part of the query string
 	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
 	 * does the right thing.
-	 * @param value can be null to remove a parameter
+	 * @param value can be null to remove a parameter, or an Iterable to provide multiple values with the same key
 	 * @return the updated, immutable request
 	 */
-	public HttpRequest queryParam(final String name, final Object value) {
-		return paramAnything(name, QueryParamValue.of(value));
-	}
+	public HttpRequest queryParam(final String name, Object value) {
+		if (value instanceof Iterable)
+			value = ImmutableList.copyOf((Iterable<?>)value);
 
-	/**
-	 * Set/override the parameter with a list of values, forcing the parameter to be part of the query string
-	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
-	 * does the right thing.
-	 * @param value can be empty or null to remove a parameter
-	 * @return the updated, immutable request
-	 */
-	public HttpRequest queryParam(final String name, final List<Object> value) {
-		return paramAnything(name, value == null ? null : QueryParamValue.of(ImmutableList.copyOf(value)));
+		return paramAnything(name, QueryParamValue.of(value));
 	}
 
 	/**
@@ -247,7 +231,7 @@ public class HttpRequest {
 	public HttpRequest queryParam(final Param... params) {
 		HttpRequest here = this;
 		for (Param param: params)
-			here = here.paramAnything(param.getName(), QueryParamValue.of(param.getValue()));
+			here = here.queryParam(param.getName(), param.getValue());
 
 		return here;
 	}
@@ -495,17 +479,10 @@ public class HttpRequest {
 		if (params.isEmpty())
 			return "";
 
-		StringBuilder bld = null;
+		final QueryBuilder bld = new QueryBuilder();
 
 		for (Map.Entry<String, Object> param: params.entrySet()) {
-			if (bld == null)
-				bld = new StringBuilder();
-			else
-				bld.append('&');
-
-			bld.append(UrlUtils.urlEncode(param.getKey()));
-			bld.append('=');
-			bld.append(UrlUtils.urlEncode(QueryParamValue.strip(param.getValue()).toString()));
+			bld.add(param.getKey(), QueryParamValue.strip(param.getValue()));
 		}
 
 		return bld.toString();
@@ -518,7 +495,7 @@ public class HttpRequest {
 	private <T> Map<String, T> combine(final Map<String, T> old, final String newKey, final T newValue) {
 		final Map<String, T> combined = new LinkedHashMap<>(old);
 
-		if (newValue == null || (newValue instanceof Collection && ((Collection)newValue).isEmpty()))
+		if (newValue == null || (newValue instanceof Iterable && !((Iterable)newValue).iterator().hasNext()))
 			combined.remove(newKey);
 		else
 			combined.put(newKey, newValue);

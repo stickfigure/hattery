@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -65,38 +66,13 @@ public class MultipartWriter {
 		final LineWriter writer = new LineWriter(this.out);
 		try {
 			for (final Map.Entry<String, Object> param: params.entrySet()) {
-				writer.println(MULTIPART_BOUNDARY_SEPARATOR);
 
-				if (param.getValue() instanceof BinaryAttachment) {
-					final BinaryAttachment ba = (BinaryAttachment)param.getValue();
-					final String headers =
-							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\"" + LineWriter.CRLF
-							+ "Content-Type: " + ba.getContentType() + LineWriter.CRLF
-							+ "Content-Transfer-Encoding: binary" + LineWriter.CRLF;
+				final Iterable<?> values = param.getValue() instanceof Iterable
+						? (Iterable<?>)param.getValue()
+						: Collections.singleton(param.getValue());
 
-					log.debug("Writing binary part:\n" + headers);
-
-					writer.print(headers);
-					writer.println();	// Extra blank line required after headers
-					writer.flush();
-
-					// Now output the binary part to the raw stream
-					int read;
-					final byte[] chunk = new byte[8192];
-					while ((read = ba.getData().read(chunk)) > 0)
-						this.out.write(chunk, 0, read);
-
-					// Yes, even with binary, a blank line is expected
-					writer.println();
-				} else {
-					final String part =
-							"Content-Disposition: form-data; name=\"" + escapeQuotes(param.getKey()) + "\"" + LineWriter.CRLF
-							+ LineWriter.CRLF
-							+ param.getValue().toString();	// how to encode this?
-
-					log.debug("Writing part:\n" + part);
-
-					writer.println(part);
+				for (final Object value : values) {
+					writeParam(writer, param.getKey(), value);
 				}
 			}
 
@@ -104,6 +80,42 @@ public class MultipartWriter {
 			writer.flush();
 		} finally {
 			writer.close();
+		}
+	}
+
+	private void writeParam(final LineWriter writer, final String key, final Object value) throws IOException {
+		writer.println(MULTIPART_BOUNDARY_SEPARATOR);
+
+		if (value instanceof BinaryAttachment) {
+			final BinaryAttachment ba = (BinaryAttachment)value;
+			final String headers =
+					"Content-Disposition: form-data; name=\"" + escapeQuotes(key) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\"" + LineWriter.CRLF
+					+ "Content-Type: " + ba.getContentType() + LineWriter.CRLF
+					+ "Content-Transfer-Encoding: binary" + LineWriter.CRLF;
+
+			log.debug("Writing binary part:\n" + headers);
+
+			writer.print(headers);
+			writer.println();	// Extra blank line required after headers
+			writer.flush();
+
+			// Now output the binary part to the raw stream
+			int read;
+			final byte[] chunk = new byte[8192];
+			while ((read = ba.getData().read(chunk)) > 0)
+				this.out.write(chunk, 0, read);
+
+			// Yes, even with binary, a blank line is expected
+			writer.println();
+		} else {
+			final String part =
+					"Content-Disposition: form-data; name=\"" + escapeQuotes(key) + "\"" + LineWriter.CRLF
+					+ LineWriter.CRLF
+					+ value.toString();	// how to encode this?
+
+			log.debug("Writing part:\n" + part);
+
+			writer.println(part);
 		}
 	}
 
