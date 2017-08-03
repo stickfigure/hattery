@@ -259,9 +259,13 @@ public class HttpRequest {
 
 	/**
 	 * Sets/overrides a header.  Value is not encoded in any particular way.
+	 * Setting Content-Type is the same as calling contentType().
 	 * @param value can be null to remove a header
 	 */
 	public HttpRequest header(final String name, final String value) {
+		if (name.toLowerCase().equals("content-type"))
+			return contentType(value);
+
 		final Map<String, String> headers = combine(this.headers, name, value);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
