@@ -25,18 +25,20 @@ package com.voodoodyne.hattery;
 import java.io.IOException;
 
 /**
- * <p>Allows requests to be executed given the character of a particular platform or http library.</p>
+ * <p>Allows requests to be executed using a particular platform or http library.</p>
  * 
  * @author Jeff Schnitzer
  */
 abstract public class Transport {
 
-	/** Start defining a request */
+	/** If you want a specific transport, use {@code request.transport(yourTransport)} */
+	@Deprecated
 	public HttpRequest request() {
 		return new HttpRequest(this);
 	}
 
-	/** Shorthand for request().url(url) */
+	/** If you want a specific transport, use {@code request.transport(yourTransport)} */
+	@Deprecated
 	public HttpRequest request(final String url) {
 		return request().url(url);
 	}

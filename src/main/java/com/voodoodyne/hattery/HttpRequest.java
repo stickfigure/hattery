@@ -100,6 +100,13 @@ public class HttpRequest {
 	private final Function<HttpRequest, HttpRequest> preflight;
 
 	/**
+	 * Start with the DefaultTransport
+	 */
+	public HttpRequest() {
+		this(new DefaultTransport());
+	}
+
+	/**
 	 * Default values
 	 */
 	public HttpRequest(final Transport transport) {
@@ -114,6 +121,11 @@ public class HttpRequest {
 		this.contentType = null;
 		this.body = null;
 		this.preflight = Function.identity();
+	}
+
+	/** Replace the existing transport */
+	public HttpRequest transport(final Transport transport) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
 	}
 
 	/** */

@@ -7,7 +7,7 @@ Hattery includes two transports. `DefaultTransport` uses `HttpURLConnection`; `A
 ```java
 // Typically start with an empty request, no need to hold on to the transport.
 // In fact, since requests are immutable, feel free to make them final static.
-HttpRequest request = new DefaultTransport().request();
+HttpRequest request = new HttpRequest();	// uses DefaultTransport
 
 // A GET request
 Thing thing1 = request
@@ -31,6 +31,7 @@ Thing thing3 = request
 
 // Some extra stuff you can set
 List<Thing> things4 = request
+	.transport(new AppEngineTransport())
 	.url("http://example.com")
 	.path("/4")
 	.path("andMore")	// adds '/' between path elements automatically
@@ -60,13 +61,12 @@ Some philosphy:
 
  * Checked exceptions are a horrible misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
  * `HttpRequest`s are immutable and thread-safe. You can pass them around anywhere. 
- * `Transport`s, while immutable and thread-safe, exist only to bootstrap `HttpRequest`s. You probably don't want to pass them around in your code; instead pass around an empty `HttpRequest`.
-
+ 
 A common pattern is to build a partial request and extend it when you need it; don't rebuild all the state every time. A contrived, self-contained example:
 
 ```java
 public class FooBarService {
-	private static final HttpRequest HTTP = new DefaultTransport().request();
+	private static final HttpRequest HTTP = new HttpRequest();
 	
 	private final HttpRequest base;
 	
