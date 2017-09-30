@@ -64,7 +64,7 @@ public class HttpRequest {
 	public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded; charset=utf-8";
 
 	/** Just the first part of it for matching */
-	private static final String APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING = APPLICATION_X_WWW_FORM_URLENCODED.split(" ")[0];
+	private static final String APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING = APPLICATION_X_WWW_FORM_URLENCODED.split(";")[0];
 
 	/** */
 	private final Transport transport;
