@@ -46,6 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 /**
@@ -220,6 +221,13 @@ public class HttpRequest {
 	}
 
 	/**
+	 * Replace all the params with the specified values.
+	 */
+	public HttpRequest params(final Map<String, Object> params) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+	}
+
+	/**
 	 * Set/override the parameter with a value, forcing the parameter to be part of the query string
 	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
 	 * does the right thing.
@@ -280,6 +288,26 @@ public class HttpRequest {
 
 		final Map<String, String> headers = combine(this.headers, name, value);
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+	}
+
+	/**
+	 * Replace all the headers with the specified values. Handles content-type as header() normally does;
+	 * the contentType field is set and excluded from the actual headers.
+	 */
+	public HttpRequest headers(final Map<String, String> headers) {
+		final Map<String, String> copiedHeaders = new LinkedHashMap<>();
+
+		String contentType = this.contentType;
+
+		for (final Entry<String, String> header : headers.entrySet()) {
+			if (header.getKey().toLowerCase().equals("content-type")) {
+				contentType = header.getValue();	// don't include it
+			} else {
+				copiedHeaders.put(header.getKey(), header.getValue());
+			}
+		}
+
+		return new HttpRequest(transport, method, url, params, contentType, body, Collections.unmodifiableMap(copiedHeaders), timeout, retries, mapper, preflight);
 	}
 
 	/**
