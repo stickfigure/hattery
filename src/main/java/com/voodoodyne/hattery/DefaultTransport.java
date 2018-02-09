@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +64,11 @@ public class DefaultTransport extends Transport {
 		return null;
 	}
 
+	/** Override this if you want special behavior (eg proxies); default is just url.openConnection() */
+	protected HttpURLConnection openConnection(final URL url) throws IOException {
+		return (HttpURLConnection)url.openConnection();
+	}
+
 	/** Override this if you want special behavior */
 	protected void prepareConnection(final HttpURLConnection conn) {
 		// default do nothing
@@ -71,7 +77,7 @@ public class DefaultTransport extends Transport {
 	/** */
 	private TransportResponse executeOnce(final HttpRequest request) throws IOException {
 
-		final HttpURLConnection conn = (HttpURLConnection)request.toUrl().openConnection();
+		final HttpURLConnection conn = openConnection(request.toUrl());
 		conn.setRequestMethod(request.getMethod());
 		conn.setConnectTimeout(request.getTimeout());
 		conn.setReadTimeout(request.getTimeout());
