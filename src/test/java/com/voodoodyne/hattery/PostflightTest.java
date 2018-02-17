@@ -27,8 +27,6 @@ import com.google.common.collect.ListMultimap;
 import com.voodoodyne.hattery.test.Requests;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static com.google.common.truth.Truth.assertThat;
 
 /**
@@ -43,12 +41,7 @@ class PostflightTest {
 		Requests.HEADERS_ENDPOINT
 				.header("foo", "notthisone")
 				.postflightAndThen(response -> {
-					try {
-						headers.putAll(response.getHeaders());
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-
+					headers.putAll(response.getHeaders());
 					return response;
 				})
 				.fetch().succeed();

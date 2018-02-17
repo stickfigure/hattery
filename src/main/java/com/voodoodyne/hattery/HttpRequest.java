@@ -101,7 +101,7 @@ public class HttpRequest {
 	private final Function<HttpRequest, HttpRequest> preflight;
 
 	/** */
-	private final Function<TransportResponse, TransportResponse> postflight;
+	private final Function<HttpResponse, HttpResponse> postflight;
 
 	/**
 	 * Start with the DefaultTransport
@@ -372,7 +372,7 @@ public class HttpRequest {
 	 * <p>This method completely replaces the postflight function. The default function function is identity,
 	 * so you can safely {@code request.postflight(request.getPostflight().andThen(yourfunction)}</p>
 	 */
-	public HttpRequest postflight(final Function<TransportResponse, TransportResponse> postflight) {
+	public HttpRequest postflight(final Function<HttpResponse, HttpResponse> postflight) {
 		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
@@ -380,7 +380,7 @@ public class HttpRequest {
 	 * A shortcut for {@code postflight(this.getPostflight().andThen(function)}. This method is probably what you
 	 * typically want to use when building up a request.
 	 */
-	public HttpRequest postflightAndThen(final Function<TransportResponse, TransportResponse> postflight) {
+	public HttpRequest postflightAndThen(final Function<HttpResponse, HttpResponse> postflight) {
 		return postflight(this.postflight.andThen(postflight));
 	}
 
@@ -390,22 +390,21 @@ public class HttpRequest {
 	 */
 	public HttpResponse fetch() {
 		final HttpRequest preflighted = preflight.apply(this);
-		final TransportResponse response = preflighted.doFetch();
-		final TransportResponse postflighted = postflight.apply(response);
-		return new HttpResponse(postflighted, getMapper());
+		final HttpResponse response = preflighted.doFetch();
+		return postflight.apply(response);
 	}
 
 	/**
 	 * Actually do the work after preflight and before postflight
 	 */
-	private TransportResponse doFetch() {
+	private HttpResponse doFetch() {
 		Preconditions.checkState(url != null);
 
 		log.debug("Fetching {}", this);
 		log.debug("{} {}", getMethod(), toUrlString());
 
 		try {
-			return getTransport().fetch(this);
+			return new HttpResponse(getTransport().fetch(this), getMapper());
 		} catch (IOException e) {
 			throw new IORException(e);
 		}

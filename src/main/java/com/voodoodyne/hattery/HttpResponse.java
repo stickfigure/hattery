@@ -14,7 +14,8 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 @ToString(exclude = "mapper")
 public class HttpResponse {
-	private final TransportResponse response;
+	@Getter
+	private final TransportResponse transportResponse;
 
 	@Getter
 	private final ObjectMapper mapper;
@@ -22,7 +23,7 @@ public class HttpResponse {
 	/** The http response code */
 	public int getResponseCode() throws IORException {
 		try {
-			return response.getResponseCode();
+			return transportResponse.getResponseCode();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -31,7 +32,7 @@ public class HttpResponse {
 	/** Response headers */
 	public ListMultimap<String, String> getHeaders() throws IORException {
 		try {
-			return response.getHeaders();
+			return transportResponse.getHeaders();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -40,7 +41,7 @@ public class HttpResponse {
 	/** The body content of the response, whether it was success or error */
 	public InputStream getContentStream() throws IORException {
 		try {
-			return response.getContentStream();
+			return transportResponse.getContentStream();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -49,7 +50,7 @@ public class HttpResponse {
 	/** The body content of the response, whether it was success or error */
 	public byte[] getContent() throws IORException {
 		try {
-			return response.getContent();
+			return transportResponse.getContent();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -59,7 +60,7 @@ public class HttpResponse {
 	public InputStream getSuccessContentStream() throws HttpException, IORException {
 		succeed();
 		try {
-			return response.getContentStream();
+			return transportResponse.getContentStream();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
@@ -69,7 +70,7 @@ public class HttpResponse {
 	public byte[] getSuccessContent() throws HttpException, IORException {
 		succeed();
 		try {
-			return response.getContent();
+			return transportResponse.getContent();
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
