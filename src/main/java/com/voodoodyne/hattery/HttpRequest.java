@@ -100,6 +100,9 @@ public class HttpRequest {
 	/** */
 	private final Function<HttpRequest, HttpRequest> preflight;
 
+	/** */
+	private final Function<TransportResponse, TransportResponse> postflight;
+
 	/**
 	 * Start with the DefaultTransport
 	 */
@@ -122,17 +125,18 @@ public class HttpRequest {
 		this.contentType = null;
 		this.body = null;
 		this.preflight = Function.identity();
+		this.postflight = Function.identity();
 	}
 
 	/** Replace the existing transport */
 	public HttpRequest transport(final Transport transport) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/** */
 	public HttpRequest method(final String method) {
 		Preconditions.checkNotNull(method);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/** */
@@ -165,7 +169,7 @@ public class HttpRequest {
 	 */
 	public HttpRequest url(final String url) {
 		Preconditions.checkNotNull(url);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
@@ -224,7 +228,7 @@ public class HttpRequest {
 	 * Replace all the params with the specified values.
 	 */
 	public HttpRequest params(final Map<String, Object> params) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
@@ -259,14 +263,14 @@ public class HttpRequest {
 	/** Private implementation lets us add anything, but don't expose that to the world */
 	private HttpRequest paramAnything(final String name, final Object value) {
 		final Map<String, Object> params = combine(this.params, name, value);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
 	 * Provide a body that will be turned into JSON.
 	 */
 	public HttpRequest body(final Object body) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
@@ -274,7 +278,7 @@ public class HttpRequest {
 	 * json, form encoded, or multipart). If you're doing anything unusual, set an explicit content type.
 	 */
 	public HttpRequest contentType(final String value) {
-		return new HttpRequest(transport, method, url, params, value, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, value, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
@@ -287,7 +291,7 @@ public class HttpRequest {
 			return contentType(value);
 
 		final Map<String, String> headers = combine(this.headers, name, value);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
@@ -307,28 +311,28 @@ public class HttpRequest {
 			}
 		}
 
-		return new HttpRequest(transport, method, url, params, contentType, body, Collections.unmodifiableMap(copiedHeaders), timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, Collections.unmodifiableMap(copiedHeaders), timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
 	public HttpRequest timeout(final int millis) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, millis, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, millis, retries, mapper, preflight, postflight);
 	}
 
 	/**
 	 * Set a retry count, or 0 for no retries
 	 */
 	public HttpRequest retries(final int retries) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
 	 * Set the mapper. Be somewhat careful here, ObjectMappers are themselves not immutable (sigh).
 	 */
 	public HttpRequest mapper(final ObjectMapper mapper) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
@@ -350,16 +354,34 @@ public class HttpRequest {
 	 * <p>This method completely replaces the preflight function. The default preflight function is identity,
 	 * so you can safely {@code request.preflight(request.getPreflight().andThen(yourfunction)}</p>
 	 */
-	public HttpRequest preflight(final Function<HttpRequest, HttpRequest> function) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, function);
+	public HttpRequest preflight(final Function<HttpRequest, HttpRequest> preflight) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
 	}
 
 	/**
 	 * A shortcut for {@code preflight(this.getPreflight().andThen(function)}. This method is probably what you
 	 * typically want to use when building up a request.
 	 */
-	public HttpRequest preflightAndThen(final Function<HttpRequest, HttpRequest> function) {
-		return preflight(preflight.andThen(function));
+	public HttpRequest preflightAndThen(final Function<HttpRequest, HttpRequest> preflight) {
+		return preflight(this.preflight.andThen(preflight));
+	}
+
+	/**
+	 * <p>Just after doing the fetch work, run this function on the http response before handing it back.</p>
+	 *
+	 * <p>This method completely replaces the postflight function. The default function function is identity,
+	 * so you can safely {@code request.postflight(request.getPostflight().andThen(yourfunction)}</p>
+	 */
+	public HttpRequest postflight(final Function<TransportResponse, TransportResponse> postflight) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight);
+	}
+
+	/**
+	 * A shortcut for {@code postflight(this.getPostflight().andThen(function)}. This method is probably what you
+	 * typically want to use when building up a request.
+	 */
+	public HttpRequest postflightAndThen(final Function<TransportResponse, TransportResponse> postflight) {
+		return postflight(this.postflight.andThen(postflight));
 	}
 
 	/**
@@ -368,20 +390,22 @@ public class HttpRequest {
 	 */
 	public HttpResponse fetch() {
 		final HttpRequest preflighted = preflight.apply(this);
-		return preflighted.doFetch();
+		final TransportResponse response = preflighted.doFetch();
+		final TransportResponse postflighted = postflight.apply(response);
+		return new HttpResponse(postflighted, getMapper());
 	}
 
 	/**
-	 * Actually do the work post-preflight
+	 * Actually do the work after preflight and before postflight
 	 */
-	private HttpResponse doFetch() {
+	private TransportResponse doFetch() {
 		Preconditions.checkState(url != null);
 
 		log.debug("Fetching {}", this);
 		log.debug("{} {}", getMethod(), toUrlString());
 
 		try {
-			return new HttpResponse(getTransport().fetch(this), getMapper());
+			return getTransport().fetch(this);
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
