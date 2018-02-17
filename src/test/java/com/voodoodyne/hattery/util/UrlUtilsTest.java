@@ -24,8 +24,7 @@ package com.voodoodyne.hattery.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  */
@@ -37,11 +36,11 @@ class UrlUtilsTest {
 	/** */
 	@Test
 	void urlEncode() {
-		assertThat(UrlUtils.urlEncode(decodedURL), equalTo(encodedURL));
+		assertThat(UrlUtils.urlEncode(decodedURL)).isEqualTo(encodedURL);
 	}
 	
 	@Test
 	void urlDecode() {
-		assertThat(UrlUtils.urlDecode(encodedURL), equalTo(decodedURL));
+		assertThat(UrlUtils.urlDecode(encodedURL)).isEqualTo(decodedURL);
 	}
 }

@@ -31,9 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -50,8 +48,8 @@ class HttpRequestTest {
 				.header("baz", "bat")
 				.fetch().as(Map.class);
 
-		assertThat(headers, hasEntry("foo", "bar"));
-		assertThat(headers, hasEntry("baz", "bat"));
+		assertThat(headers).containsEntry("foo", "bar");
+		assertThat(headers).containsEntry("baz", "bat");
 	}
 
 	/** */
@@ -61,7 +59,7 @@ class HttpRequestTest {
 		final Map<String, String> headers = Requests.HEADERS_ENDPOINT
 				.header("foo", "zzz").header("foo", "yyy")
 				.fetch().as(Map.class);
-		assertThat(headers, hasEntry("foo", "yyy"));
+		assertThat(headers).containsEntry("foo", "yyy");
 	}
 
 	/** */
@@ -73,8 +71,8 @@ class HttpRequestTest {
 				.contentType("not/real")
 				.fetch().as(Map.class);
 
-		assertThat(headers, hasEntry("foo", "bar"));
-		assertThat(headers, hasEntry("Content-Type", "not/real"));
+		assertThat(headers).containsEntry("foo", "bar");
+		assertThat(headers).containsEntry("Content-Type", "not/real");
 	}
 
 	@Data
@@ -87,14 +85,14 @@ class HttpRequestTest {
 	@Test
 	void paramStringsAreSubmitted() throws Exception {
 		final MD5Response response = Requests.MD5_ENDPOINT.param("text", "example").fetch().as(MD5Response.class);
-		assertThat(response.getOriginal(), equalTo("example"));
+		assertThat(response.getOriginal()).isEqualTo("example");
 	}
 
 	/** */
 	@Test
 	void paramObjectsAreSubmitted() throws Exception {
 		final MD5Response response = Requests.MD5_ENDPOINT.param(new Param("text", "example")).fetch().as(MD5Response.class);
-		assertThat(response.getOriginal(), equalTo("example"));
+		assertThat(response.getOriginal()).isEqualTo("example");
 	}
 
 	/** */
@@ -104,7 +102,7 @@ class HttpRequestTest {
 				.param("text", "notexample")
 				.param("text", "example")
 				.fetch().as(MD5Response.class);
-		assertThat(response.getOriginal(), equalTo("example"));
+		assertThat(response.getOriginal()).isEqualTo("example");
 	}
 
 	/** */
@@ -114,7 +112,7 @@ class HttpRequestTest {
 				.param("text", "notexample")
 				.param("text", null)
 				.toUrlString();
-		assertThat(url, equalTo("http://md5.jsontest.com"));
+		assertThat(url).isEqualTo("http://md5.jsontest.com");
 	}
 
 	/** */
@@ -122,30 +120,30 @@ class HttpRequestTest {
 	@Test
 	void pathsAreSubmitted() throws Exception {
 		final Map<String, String> headers = Requests.ECHO_ENDPOINT.path("/one").path("/two").fetch().as(Map.class);
-		assertThat(headers, hasEntry("one", "two"));
+		assertThat(headers).containsEntry("one", "two");
 	}
 
 	/** */
 	@Test
 	void addsSlashToPathWhenAppropriate() {
 		HttpRequest request = new DefaultTransport().request();
-		assertThat(request.url("http://example.com").path("foo").getUrl(), equalTo("http://example.com/foo"));
-		assertThat(request.url("http://example.com/").path("foo").getUrl(), equalTo("http://example.com/foo"));
-		assertThat(request.url("http://example.com").path("/foo").getUrl(), equalTo("http://example.com/foo"));
+		assertThat(request.url("http://example.com").path("foo").getUrl()).isEqualTo("http://example.com/foo");
+		assertThat(request.url("http://example.com/").path("foo").getUrl()).isEqualTo("http://example.com/foo");
+		assertThat(request.url("http://example.com").path("/foo").getUrl()).isEqualTo("http://example.com/foo");
 	}
 
 	/** */
 	@Test
 	void removesSlashFromPathWhenAppropriate() {
 		HttpRequest request = new DefaultTransport().request();
-		assertThat(request.url("http://example.com/").path("/foo").getUrl(), equalTo("http://example.com/foo"));
+		assertThat(request.url("http://example.com/").path("/foo").getUrl()).isEqualTo("http://example.com/foo");
 	}
 	
 	/** */
 	@Test
 	void basicAuthIsSubmitted() {
 		HttpRequest request = new DefaultTransport().request().basicAuth("test", "testing");
-		assertThat(request.getHeaders(), hasEntry("Authorization", "Basic dGVzdDp0ZXN0aW5n"));
+		assertThat(request.getHeaders()).containsEntry("Authorization", "Basic dGVzdDp0ZXN0aW5n");
 	}
 	
 	/** */
@@ -164,7 +162,7 @@ class HttpRequestTest {
 				.body(new MD5Response("foo", "bar"))
 				.fetch().as(ValidateResponse.class);
 
-		assertThat(validate.isValidate(), equalTo(true));
+		assertThat(validate.isValidate()).isTrue();
 	}
 
 	/** */
@@ -172,7 +170,7 @@ class HttpRequestTest {
 	void queryParamsAreForcedEvenWhenPostingFormData() {
 		final HttpRequest request = new DefaultTransport().request().url("http://example.com").POST().param("foo", "bar").queryParam("foo2", "bar2");
 
-		assertThat(request.toUrlString(), equalTo("http://example.com?foo2=bar2"));
+		assertThat(request.toUrlString()).isEqualTo("http://example.com?foo2=bar2");
 	}
 
 	/** */
@@ -180,7 +178,7 @@ class HttpRequestTest {
 	void multipleParamObjectsCanBePassed() {
 		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param(new Param("foo", "bar"), new Param("foo2", "bar2"));
 
-		assertThat(request.toUrlString(), equalTo("http://example.com?foo=bar&foo2=bar2"));
+		assertThat(request.toUrlString()).isEqualTo("http://example.com?foo=bar&foo2=bar2");
 	}
 
 	/** */
@@ -189,6 +187,6 @@ class HttpRequestTest {
 		final List<String> list = Arrays.asList("foo", "bar");
 		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param("baz", list);
 
-		assertThat(request.toUrlString(), equalTo("http://example.com?baz=foo&baz=bar"));
+		assertThat(request.toUrlString()).isEqualTo("http://example.com?baz=foo&baz=bar");
 	}
 }

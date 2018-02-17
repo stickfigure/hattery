@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  */
@@ -44,7 +43,7 @@ class LineWriterTest {
 		lineWriter.print("f");
 		lineWriter.print("oo");
 		lineWriter.close();
-		assertThat(outContent.toString(), equalTo("foo"));
+		assertThat(outContent.toString()).isEqualTo("foo");
 	}
 	
 	@Test
@@ -54,7 +53,7 @@ class LineWriterTest {
 		lineWriter.println("f");
 		lineWriter.println("oo");
 		lineWriter.close();
-		assertThat(outContent.toString(), equalTo("f" + CRLF + "oo" + CRLF));
+		assertThat(outContent.toString()).isEqualTo("f" + CRLF + "oo" + CRLF);
 	}
 	
 	@Test
@@ -63,6 +62,6 @@ class LineWriterTest {
 		LineWriter lineWriter = new LineWriter(outContent);
 		lineWriter.println();
 		lineWriter.close();
-		assertThat(outContent.toString(), equalTo(CRLF));
+		assertThat(outContent.toString()).isEqualTo(CRLF);
 	}
 }

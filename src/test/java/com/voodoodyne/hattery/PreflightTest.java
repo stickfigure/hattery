@@ -27,8 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  */
@@ -43,6 +42,6 @@ class PreflightTest {
 				.preflightAndThen(req -> req.header("foo", "bar"))
 				.fetch().as(Map.class);
 
-		assertThat(entries, hasEntry("foo", "bar"));
+		assertThat(entries).containsEntry("foo", "bar");
 	}
 }

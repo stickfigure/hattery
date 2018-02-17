@@ -35,8 +35,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * @author Jeff Schnitzer
@@ -89,8 +88,8 @@ class AppEngineTest {
 					.fetch().as(Foo.class);
 			assert false;
 		} catch (IORException e) {
-			assertThat(callCounter.getCount(), equalTo(1));
+			assertThat(callCounter.getCount()).isEqualTo(1);
 		}
 	}
-	
+
 }

@@ -22,9 +22,7 @@
 
 package com.voodoodyne.hattery.test;
 
-import com.voodoodyne.hattery.DefaultTransport;
 import com.voodoodyne.hattery.HttpRequest;
-import com.voodoodyne.hattery.Transport;
 
 
 /**
@@ -35,17 +33,17 @@ import com.voodoodyne.hattery.Transport;
 public class Requests {
 
 	/** */
-	public static Transport TRANSPORT = new DefaultTransport();
+	public static HttpRequest REQ = new HttpRequest();
 
 	/** */
-	public static HttpRequest HEADERS_ENDPOINT = TRANSPORT.request("http://headers.jsontest.com");
+	public static HttpRequest HEADERS_ENDPOINT = REQ.url("http://headers.jsontest.com");
 
 	/** */
-	public static  HttpRequest MD5_ENDPOINT = TRANSPORT.request("http://md5.jsontest.com");
+	public static  HttpRequest MD5_ENDPOINT = REQ.url("http://md5.jsontest.com");
 
 	/** */
-	public static  HttpRequest ECHO_ENDPOINT = TRANSPORT.request("http://echo.jsontest.com");
+	public static  HttpRequest ECHO_ENDPOINT = REQ.url("http://echo.jsontest.com");
 
 	/** */
-	public static  HttpRequest VALIDATE_ENDPOINT = TRANSPORT.request("http://validate.jsontest.com");
+	public static  HttpRequest VALIDATE_ENDPOINT = REQ.url("http://validate.jsontest.com");
 }

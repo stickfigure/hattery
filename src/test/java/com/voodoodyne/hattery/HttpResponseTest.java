@@ -35,9 +35,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -63,9 +61,9 @@ class HttpResponseTest {
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		
 		final Map<String, Collection<String>> headers = response.getHeaders().asMap();
-		assertThat(headers, hasKey("Host"));
-		assertThat(headers, hasKey("User-Agent"));
-		assertThat(headers, hasKey("Accept"));
+		assertThat(headers).containsKey("Host");
+		assertThat(headers).containsKey("User-Agent");
+		assertThat(headers).containsKey("Accept");
 	}
 	
 	/** */
@@ -75,7 +73,7 @@ class HttpResponseTest {
 		when(transportResponse.getContent()).thenReturn(byteTest);
 		
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
-		assertThat(response.getContent(), equalTo(byteTest));
+		assertThat(response.getContent()).isEqualTo(byteTest);
 	}
 	
 	/** */
@@ -85,7 +83,7 @@ class HttpResponseTest {
 		when(transportResponse.getContentStream()).thenReturn(byteArrayInputStream);
 		
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
-		assertThat(response.getContentStream(), equalTo(byteArrayInputStream));
+		assertThat(response.getContentStream()).isEqualTo(byteArrayInputStream);
 	}
 	
 	/** */
@@ -97,7 +95,7 @@ class HttpResponseTest {
 		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
 		doReturn(response).when(response).succeed();
 		
-		assertThat(response.getSuccessContentStream(), equalTo(byteArrayInputStream));
+		assertThat(response.getSuccessContentStream()).isEqualTo(byteArrayInputStream);
 	}
 	
 	/** */
@@ -109,7 +107,7 @@ class HttpResponseTest {
 		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
 		doReturn(response).when(response).succeed();
 		
-		assertThat(response.getSuccessContent(), equalTo(byteTest));
+		assertThat(response.getSuccessContent()).isEqualTo(byteTest);
 	}
 	
 	/** */
@@ -118,10 +116,10 @@ class HttpResponseTest {
 		when(transportResponse.getResponseCode()).thenReturn(200);
 		
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
-		assertThat(response.succeed(), equalTo(response));
+		assertThat(response.succeed()).isEqualTo(response);
 		
 		when(transportResponse.getResponseCode()).thenReturn(304);
-		assertThat(response.succeed(), equalTo(response));
+		assertThat(response.succeed()).isEqualTo(response);
 	}
 	
 	/** */
