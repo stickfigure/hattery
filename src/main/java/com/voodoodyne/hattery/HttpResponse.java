@@ -83,7 +83,7 @@ public class HttpResponse {
 	 */
 	public HttpResponse succeed() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 400)
-			throw new HttpException(getResponseCode(), getContent());
+			throw new HttpException(getResponseCode(), getHeaders(), getContent());
 
 		return this;
 	}
