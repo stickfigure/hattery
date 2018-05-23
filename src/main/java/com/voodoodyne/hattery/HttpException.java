@@ -74,7 +74,8 @@ public class HttpException extends IORException {
 				return "Body of " + contentNormalized.length + " bytes, not utf-8";
 			}
 		} else {
-			if (contentType.toLowerCase().startsWith("text")) {
+			final String lowercase = contentType.toLowerCase();
+			if (lowercase.startsWith("text") || lowercase.startsWith("application/json")) {
 				return new String(contentNormalized, StandardCharsets.UTF_8);
 			} else {
 				return "Error body of type " + contentType + ", " + contentNormalized.length + " bytes";
