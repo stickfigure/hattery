@@ -22,6 +22,7 @@
 
 package com.voodoodyne.hattery;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.Getter;
@@ -48,6 +49,10 @@ public class HttpException extends IORException {
 
 	@Getter
 	private final byte[] content;
+
+	public HttpException(final int code, final byte[] content) {
+		this(code, ArrayListMultimap.create(), content);
+	}
 
 	public HttpException(final int code, final ListMultimap<String, String> headers, final byte[] content) {
 		super(code + ": " + makeMessageOutOf(headers, content));
