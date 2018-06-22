@@ -7,8 +7,11 @@ import com.google.common.collect.ListMultimap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /** Returned by request execution */
 @RequiredArgsConstructor
@@ -96,7 +99,7 @@ public class HttpResponse {
 		return succeed().contentAs(type);
 	}
 
-	/**`
+	/**
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
@@ -113,6 +116,22 @@ public class HttpResponse {
 	}
 
 	/**
+	 * Convert the response to a string.
+	 * @throws HttpException if there was a nonsuccess error code
+	 */
+	public String asString(final Charset charset) throws HttpException, IORException {
+		return new String(getSuccessContent(), charset);
+	}
+
+	/**
+	 * Convert the response to a string, assuming UTF-8 (because that's what you want 95% of the time)
+	 * @throws HttpException if there was a nonsuccess error code
+	 */
+	public String asString() throws HttpException, IORException {
+		return asString(StandardCharsets.UTF_8);
+	}
+
+	/**
 	 * Convert the response (whether success or error) to a JSON object using Jackson.
 	 */
 	public <T> T contentAs(final Class<T> type) throws IORException  {
@@ -123,7 +142,7 @@ public class HttpResponse {
 		}
 	}
 
-	/**`
+	/**
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
 	 */
 	public <T> T contentAs(final TypeReference<T> type) throws IORException  {
