@@ -48,7 +48,7 @@ import java.util.concurrent.Future;
  * @author Jeff Schnitzer
  */
 @Slf4j
-public class AppEngineTransport extends Transport {
+public class AppEngineTransport implements Transport {
 
 	private final URLFetchService fetchService;
 

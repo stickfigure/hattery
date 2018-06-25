@@ -29,27 +29,10 @@ import java.io.IOException;
  * 
  * @author Jeff Schnitzer
  */
-abstract public class Transport {
-
-	/** If you want a specific transport, use {@code request.transport(yourTransport)} */
-	@Deprecated
-	public HttpRequest request() {
-		return new HttpRequest(this);
-	}
-
-	/** If you want a specific transport, use {@code request.transport(yourTransport)} */
-	@Deprecated
-	public HttpRequest request(final String url) {
-		return request().url(url);
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getSimpleName();
-	}
+public interface Transport {
 
 	/**
 	 * Executes the specified request once. Does not need to handle retries.
 	 */
-	abstract public TransportResponse fetch(final HttpRequest request) throws IOException;
+	TransportResponse fetch(final HttpRequest request) throws IOException;
 }

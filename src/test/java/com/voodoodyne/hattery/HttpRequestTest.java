@@ -126,7 +126,7 @@ class HttpRequestTest {
 	/** */
 	@Test
 	void addsSlashToPathWhenAppropriate() {
-		HttpRequest request = new DefaultTransport().request();
+		final HttpRequest request = new HttpRequest();
 		assertThat(request.url("http://example.com").path("foo").getUrl()).isEqualTo("http://example.com/foo");
 		assertThat(request.url("http://example.com/").path("foo").getUrl()).isEqualTo("http://example.com/foo");
 		assertThat(request.url("http://example.com").path("/foo").getUrl()).isEqualTo("http://example.com/foo");
@@ -135,14 +135,14 @@ class HttpRequestTest {
 	/** */
 	@Test
 	void removesSlashFromPathWhenAppropriate() {
-		HttpRequest request = new DefaultTransport().request();
+		final HttpRequest request = new HttpRequest();
 		assertThat(request.url("http://example.com/").path("/foo").getUrl()).isEqualTo("http://example.com/foo");
 	}
 	
 	/** */
 	@Test
 	void basicAuthIsSubmitted() {
-		HttpRequest request = new DefaultTransport().request().basicAuth("test", "testing");
+		final HttpRequest request = new HttpRequest().basicAuth("test", "testing");
 		assertThat(request.getHeaders()).containsEntry("Authorization", "Basic dGVzdDp0ZXN0aW5n");
 	}
 	
@@ -168,7 +168,7 @@ class HttpRequestTest {
 	/** */
 	@Test
 	void queryParamsAreForcedEvenWhenPostingFormData() {
-		final HttpRequest request = new DefaultTransport().request().url("http://example.com").POST().param("foo", "bar").queryParam("foo2", "bar2");
+		final HttpRequest request = new HttpRequest().url("http://example.com").POST().param("foo", "bar").queryParam("foo2", "bar2");
 
 		assertThat(request.toUrlString()).isEqualTo("http://example.com?foo2=bar2");
 	}
@@ -176,7 +176,7 @@ class HttpRequestTest {
 	/** */
 	@Test
 	void multipleParamObjectsCanBePassed() {
-		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param(new Param("foo", "bar"), new Param("foo2", "bar2"));
+		final HttpRequest request = new HttpRequest().url("http://example.com").param(new Param("foo", "bar"), new Param("foo2", "bar2"));
 
 		assertThat(request.toUrlString()).isEqualTo("http://example.com?foo=bar&foo2=bar2");
 	}
@@ -185,7 +185,7 @@ class HttpRequestTest {
 	@Test
 	void listParamsBecomeMultipleEntries() {
 		final List<String> list = Arrays.asList("foo", "bar");
-		final HttpRequest request = new DefaultTransport().request().url("http://example.com").param("baz", list);
+		final HttpRequest request = new HttpRequest().url("http://example.com").param("baz", list);
 
 		assertThat(request.toUrlString()).isEqualTo("http://example.com?baz=foo&baz=bar");
 	}

@@ -80,7 +80,7 @@ class AppEngineTest {
 		final URLFetchService fetchService = (URLFetchService)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[]{URLFetchService.class}, callCounter);
 
 		try {
-			new AppEngineTransport(fetchService).request()
+			new HttpRequest(new AppEngineTransport(fetchService))
 					.url("http://voodoodyne1.appspot.com/timeout")
 					.param("time", "4")
 					//.retries(2)

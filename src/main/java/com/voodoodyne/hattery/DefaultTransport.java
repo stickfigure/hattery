@@ -42,7 +42,7 @@ import java.util.Map;
  * @author Jeff Schnitzer
  */
 @Slf4j
-public class DefaultTransport extends Transport {
+public class DefaultTransport implements Transport {
 
 	@Override
 	public TransportResponse fetch(final HttpRequest request) throws IOException {
