@@ -81,6 +81,7 @@ public class DefaultTransport implements Transport {
 		conn.setRequestMethod(request.getMethod());
 		conn.setConnectTimeout(request.getTimeout());
 		conn.setReadTimeout(request.getTimeout());
+		conn.setInstanceFollowRedirects(request.isFollowRedirects());
 
 		for (Map.Entry<String, String> header : request.getHeaders().entrySet()) {
 			conn.setRequestProperty(header.getKey(), header.getValue());

@@ -82,6 +82,11 @@ public class AppEngineTransport implements Transport {
 			gaeRequest.setPayload(outputStream.toByteArray());
 		}
 
+		if (request.isFollowRedirects())
+			gaeRequest.getFetchOptions().followRedirects();
+		else
+			gaeRequest.getFetchOptions().doNotFollowRedirects();
+
 		return new Response(request.getRetries(), gaeRequest);
 	}
 
