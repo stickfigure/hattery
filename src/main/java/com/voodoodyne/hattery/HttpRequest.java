@@ -412,7 +412,7 @@ public class HttpRequest {
 	private HttpResponse doFetch() {
 		Preconditions.checkState(url != null);
 
-		log.debug("Fetching {}", this);
+		log.info("Fetching {}", this);
 		log.debug("{} {}", getMethod(), toUrlString());
 
 		try {
