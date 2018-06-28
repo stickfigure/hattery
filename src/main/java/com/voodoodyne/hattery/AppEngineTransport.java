@@ -31,6 +31,7 @@ import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
@@ -47,6 +48,7 @@ import java.util.concurrent.Future;
  * 
  * @author Jeff Schnitzer
  */
+@ToString
 @Slf4j
 public class AppEngineTransport implements Transport {
 

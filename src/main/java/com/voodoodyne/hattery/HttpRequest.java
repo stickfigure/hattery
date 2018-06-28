@@ -57,7 +57,7 @@ import java.util.function.Function;
 @Data
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Slf4j
-@ToString(exclude = "mapper")	// string version is useless and noisy
+@ToString(exclude = {"mapper", "preflight", "postflight"})	// useless and noisy
 public class HttpRequest {
 
 	/** */

@@ -25,6 +25,7 @@ package com.voodoodyne.hattery;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.io.ByteStreams;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ import java.util.Map;
  * 
  * @author Jeff Schnitzer
  */
+@ToString
 @Slf4j
 public class DefaultTransport implements Transport {
 
