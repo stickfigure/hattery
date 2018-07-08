@@ -41,6 +41,9 @@ import java.util.List;
 public class HttpException extends IORException {
 	private static final long serialVersionUID = -4976836886636358176L;
 
+	/** Longest text/* message we allow (we don't restrict json) */
+	private static final int MAX_TEXT_MSG_LENGTH = 500;
+
 	@Getter
 	private final int code;
 
@@ -65,21 +68,32 @@ public class HttpException extends IORException {
 	private static String makeMessageOutOf(final ListMultimap<String, String> headers, final byte[] content) {
 		final String contentType = getContentType(headers);
 
-		final byte[] contentNormalized = content == null ? new byte[0] : content;
+		final byte[] notNullContent = content == null ? new byte[0] : content;
 
 		if (contentType == null) {
-			if (isValidUTF8(contentNormalized)) {
-				return new String(contentNormalized, StandardCharsets.UTF_8);
+			if (isValidUTF8(notNullContent)) {
+				return chopTo(new String(notNullContent, StandardCharsets.UTF_8), MAX_TEXT_MSG_LENGTH);
 			} else {
-				return "Body of " + contentNormalized.length + " bytes, not utf-8";
+				return "Body of " + notNullContent.length + " bytes, not utf-8";
 			}
 		} else {
 			final String lowercase = contentType.toLowerCase();
-			if (lowercase.startsWith("text") || lowercase.startsWith("application/json")) {
-				return new String(contentNormalized, StandardCharsets.UTF_8);
+			if (lowercase.startsWith("text")) {
+				return chopTo(new String(notNullContent, StandardCharsets.UTF_8), MAX_TEXT_MSG_LENGTH);
+			} else if (lowercase.startsWith("application/json")) {
+				return new String(notNullContent, StandardCharsets.UTF_8);
 			} else {
-				return "Error body of type " + contentType + ", " + contentNormalized.length + " bytes";
+				return "Error body of type " + contentType + ", " + notNullContent.length + " bytes";
 			}
+		}
+	}
+
+	/** Cut string down to a maximum length */
+	private static String chopTo(final String original, final int length) {
+		if (original.length() > length) {
+			return original.substring(0, length - 1) + '\u2026';		// elipsis
+		} else {
+			return original;
 		}
 	}
 
