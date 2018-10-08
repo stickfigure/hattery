@@ -57,7 +57,7 @@ class HttpResponseTest {
 	@Test
 	void getHeaders() throws Exception {
 		when(transportResponse.getHeaders()).thenReturn(fakeHeaders());
-		
+
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		
 		final Map<String, Collection<String>> headers = response.getHeaders().asMap();
@@ -65,13 +65,25 @@ class HttpResponseTest {
 		assertThat(headers).containsKey("User-Agent");
 		assertThat(headers).containsKey("Accept");
 	}
-	
+
+	/** */
+	@Test
+	void headersAreCaseInsensitive() throws Exception {
+		when(transportResponse.getHeaders()).thenReturn(fakeHeaders());
+
+		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
+
+		final Map<String, Collection<String>> headers = response.getHeaders().asMap();
+		assertThat(headers.get("Host")).isEqualTo(headers.get("hOsT"));
+	}
+
 	/** */
 	@Test
 	void getContent() throws Exception {
 		final byte[] byteTest = "test".getBytes();
 		when(transportResponse.getContent()).thenReturn(byteTest);
-		
+		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
+
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		assertThat(response.getContent()).isEqualTo(byteTest);
 	}
@@ -81,7 +93,8 @@ class HttpResponseTest {
 	void getContentStream() throws Exception {
 		final InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
 		when(transportResponse.getContentStream()).thenReturn(byteArrayInputStream);
-		
+		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
+
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		assertThat(response.getContentStream()).isEqualTo(byteArrayInputStream);
 	}
@@ -91,7 +104,8 @@ class HttpResponseTest {
 	void getSuccessContentStream() throws Exception {
 		final InputStream byteArrayInputStream = new ByteArrayInputStream("test".getBytes());
 		when(transportResponse.getContentStream()).thenReturn(byteArrayInputStream);
-		
+		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
+
 		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
 		doReturn(response).when(response).succeed();
 		
@@ -103,7 +117,8 @@ class HttpResponseTest {
 	void getSuccessContent() throws Exception {
 		final byte[] byteTest = "test".getBytes();
 		when(transportResponse.getContent()).thenReturn(byteTest);
-		
+		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
+
 		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
 		doReturn(response).when(response).succeed();
 		
@@ -114,7 +129,8 @@ class HttpResponseTest {
 	@Test
 	void succeedSuccessful() throws Exception {
 		when(transportResponse.getResponseCode()).thenReturn(200);
-		
+		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
+
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		assertThat(response.succeed()).isEqualTo(response);
 		
@@ -126,6 +142,7 @@ class HttpResponseTest {
 	@Test
 	void succeedUnsuccessful() throws Exception {
 		when(transportResponse.getResponseCode()).thenReturn(404);
+		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
 		
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
 		

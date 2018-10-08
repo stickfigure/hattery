@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ListMultimap;
+import com.voodoodyne.hattery.util.CaseInsensitiveListMultimap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -13,7 +14,11 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-/** Returned by request execution */
+/**
+ * Returned by request execution.
+ *
+ * Because of header caching, this object is not thread safe.
+ */
 @RequiredArgsConstructor
 @ToString(exclude = "mapper")
 public class HttpResponse {
@@ -22,6 +27,8 @@ public class HttpResponse {
 
 	@Getter
 	private final ObjectMapper mapper;
+
+	private CaseInsensitiveListMultimap<String> cachedHeaders;
 
 	/** The http response code */
 	public int getResponseCode() throws IORException {
@@ -32,8 +39,19 @@ public class HttpResponse {
 		}
 	}
 
-	/** Response headers */
+	/**
+	 * Response headers
+	 * @return a collection that is case insensitive, case preserving, unmodifiable
+	 */
 	public ListMultimap<String, String> getHeaders() throws IORException {
+		if (cachedHeaders == null) {
+			cachedHeaders = new CaseInsensitiveListMultimap<>(getTransportHeaders());
+		}
+
+		return cachedHeaders;
+	}
+
+	private ListMultimap<String, String> getTransportHeaders() {
 		try {
 			return transportResponse.getHeaders();
 		} catch (IOException e) {

@@ -133,7 +133,9 @@ public class DefaultTransport implements Transport {
 
 		final ListMultimap<String, String> headers = ArrayListMultimap.create();
 		for (Map.Entry<String, List<String>> entry : conn.getHeaderFields().entrySet()) {
-			headers.putAll(entry.getKey(), entry.getValue());
+			// Weird, seems to pass us null -> "HTTP/1.1 200 OK" which we don't want
+			if (entry.getKey() != null)
+				headers.putAll(entry.getKey(), entry.getValue());
 		}
 
 		return new TransportResponse() {
