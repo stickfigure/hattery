@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Returned by request execution.
@@ -57,6 +59,15 @@ public class HttpResponse {
 		} catch (IOException e) {
 			throw new IORException(e);
 		}
+	}
+
+	/**
+	 * A convenience method for obtaining the Location header value
+	 * @return the value of the Location header, if it exists
+	 */
+	public Optional<String> getLocation() throws IORException {
+		final List<String> location = getHeaders().get("Location");
+		return location.isEmpty() ? Optional.empty() : Optional.of(location.get(0));
 	}
 
 	/** The body content of the response, whether it was success or error */
