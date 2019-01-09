@@ -33,11 +33,11 @@ public class HttpResponse {
 	private CaseInsensitiveListMultimap<String> cachedHeaders;
 
 	/** The http response code */
-	public int getResponseCode() throws IORException {
+	public int getResponseCode() throws IORuntimeException {
 		try {
 			return transportResponse.getResponseCode();
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -45,7 +45,7 @@ public class HttpResponse {
 	 * Response headers
 	 * @return a collection that is case insensitive, case preserving, unmodifiable
 	 */
-	public ListMultimap<String, String> getHeaders() throws IORException {
+	public ListMultimap<String, String> getHeaders() throws IORuntimeException {
 		if (cachedHeaders == null) {
 			cachedHeaders = new CaseInsensitiveListMultimap<>(getTransportHeaders());
 		}
@@ -57,7 +57,7 @@ public class HttpResponse {
 		try {
 			return transportResponse.getHeaders();
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -65,46 +65,46 @@ public class HttpResponse {
 	 * A convenience method for obtaining the Location header value
 	 * @return the value of the Location header, if it exists
 	 */
-	public Optional<String> getLocation() throws IORException {
+	public Optional<String> getLocation() throws IORuntimeException {
 		final List<String> location = getHeaders().get("Location");
 		return location.isEmpty() ? Optional.empty() : Optional.of(location.get(0));
 	}
 
 	/** The body content of the response, whether it was success or error */
-	public InputStream getContentStream() throws IORException {
+	public InputStream getContentStream() throws IORuntimeException {
 		try {
 			return transportResponse.getContentStream();
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
 	/** The body content of the response, whether it was success or error */
-	public byte[] getContent() throws IORException {
+	public byte[] getContent() throws IORuntimeException {
 		try {
 			return transportResponse.getContent();
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
 	/** The body content of the response, throwing HttpException if response code is not successful */
-	public InputStream getSuccessContentStream() throws HttpException, IORException {
+	public InputStream getSuccessContentStream() throws HttpException, IORuntimeException {
 		succeed();
 		try {
 			return transportResponse.getContentStream();
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
 	/** The body content of the response, throwing HttpException if response code is not successful */
-	public byte[] getSuccessContent() throws HttpException, IORException {
+	public byte[] getSuccessContent() throws HttpException, IORuntimeException {
 		succeed();
 		try {
 			return transportResponse.getContent();
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class HttpResponse {
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(final Class<T> type) throws HttpException, IORException {
+	public <T> T as(final Class<T> type) throws HttpException, IORuntimeException {
 		return succeed().contentAs(type);
 	}
 
@@ -132,7 +132,7 @@ public class HttpResponse {
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(final TypeReference<T> type) throws HttpException, IORException  {
+	public <T> T as(final TypeReference<T> type) throws HttpException, IORuntimeException {
 		return succeed().contentAs(type);
 	}
 
@@ -140,7 +140,7 @@ public class HttpResponse {
 	 * Convert the response to a JSON object using Jackson
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public <T> T as(final JavaType type) throws HttpException, IORException  {
+	public <T> T as(final JavaType type) throws HttpException, IORuntimeException {
 		return succeed().contentAs(type);
 	}
 
@@ -148,7 +148,7 @@ public class HttpResponse {
 	 * Convert the response to a string.
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public String asString(final Charset charset) throws HttpException, IORException {
+	public String asString(final Charset charset) throws HttpException, IORuntimeException {
 		return new String(getSuccessContent(), charset);
 	}
 
@@ -156,40 +156,40 @@ public class HttpResponse {
 	 * Convert the response to a string, assuming UTF-8 (because that's what you want 95% of the time)
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
-	public String asString() throws HttpException, IORException {
+	public String asString() throws HttpException, IORuntimeException {
 		return asString(StandardCharsets.UTF_8);
 	}
 
 	/**
 	 * Convert the response (whether success or error) to a JSON object using Jackson.
 	 */
-	public <T> T contentAs(final Class<T> type) throws IORException  {
+	public <T> T contentAs(final Class<T> type) throws IORuntimeException {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
 	/**
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
 	 */
-	public <T> T contentAs(final TypeReference<T> type) throws IORException  {
+	public <T> T contentAs(final TypeReference<T> type) throws IORuntimeException {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
 	/**
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
 	 */
-	public <T> T contentAs(final JavaType type) throws IORException  {
+	public <T> T contentAs(final JavaType type) throws IORuntimeException {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 }

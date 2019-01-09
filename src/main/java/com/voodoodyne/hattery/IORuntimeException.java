@@ -23,27 +23,28 @@
 package com.voodoodyne.hattery;
 
 /**
- * Acts like IOException but isn't a stupid checked exception.
+ * Acts like IOException but isn't a checked exception. We'd like to use java.io.UncheckedIOException
+ * but it requires an IOException to wrap, so isn't really a replacement for IOException.
  * 
  * @author Jeff Schnitzer
  */
-public class IORException extends RuntimeException {
-  public IORException() {
+public class IORuntimeException extends RuntimeException {
+  public IORuntimeException() {
   }
 
-  public IORException(String message) {
+  public IORuntimeException(String message) {
     super(message);
   }
 
-  public IORException(String message, Throwable cause) {
+  public IORuntimeException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  public IORException(Throwable cause) {
+  public IORuntimeException(Throwable cause) {
     super(cause);
   }
 
-  public IORException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+  public IORuntimeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 }

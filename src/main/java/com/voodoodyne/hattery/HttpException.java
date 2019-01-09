@@ -38,7 +38,7 @@ import java.util.List;
  * 
  * @author Jeff Schnitzer
  */
-public class HttpException extends IORException {
+public class HttpException extends IORuntimeException {
 	private static final long serialVersionUID = -4976836886636358176L;
 
 	/** Longest text/* message we allow (we don't restrict json) */

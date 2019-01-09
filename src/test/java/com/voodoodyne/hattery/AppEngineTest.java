@@ -86,7 +86,7 @@ class AppEngineTest {
 					.timeout(1000)
 					.fetch().succeed();
 			assert false;
-		} catch (IORException e) {
+		} catch (IORuntimeException e) {
 			assertThat(callCounter.getCount()).isEqualTo(2);
 		}
 	}

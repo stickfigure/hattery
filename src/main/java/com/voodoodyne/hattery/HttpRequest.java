@@ -418,7 +418,7 @@ public class HttpRequest {
 		try {
 			return new HttpResponse(getTransport().fetch(this), getMapper());
 		} catch (IOException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 
@@ -441,13 +441,13 @@ public class HttpRequest {
 
 	/**
 	 * @return the java url equivalent of this request
-	 * @throws IORException (the runtime wrapper for IOException) if somehow the url is malformed
+	 * @throws IORuntimeException (the runtime wrapper for IOException) if somehow the url is malformed
 	 */
-	public URL toUrl() throws IORException {
+	public URL toUrl() throws IORuntimeException {
 		try {
 			return new URL(toUrlString());
 		} catch (MalformedURLException e) {
-			throw new IORException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 

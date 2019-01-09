@@ -149,7 +149,7 @@ class HttpRequestTest {
 	/** */
 	@Test
 	void jacksonExceptionsProduceIORException() {
-		assertThrows(IORException.class, () -> {
+		assertThrows(IORuntimeException.class, () -> {
 			Requests.ECHO_ENDPOINT.GET().fetch().as(MD5Response.class);	// wrong response
 		});
 	}
