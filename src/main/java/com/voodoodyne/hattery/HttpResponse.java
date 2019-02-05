@@ -70,6 +70,15 @@ public class HttpResponse {
 		return location.isEmpty() ? Optional.empty() : Optional.of(location.get(0));
 	}
 
+	/**
+	 * A convenience method for obtaining the Content-Type header value
+	 * @return the value of the Content-Type header, if it exists
+	 */
+	public Optional<String> getContentType() throws IORuntimeException {
+		final List<String> location = getHeaders().get("Content-Type");
+		return location.isEmpty() ? Optional.empty() : Optional.of(location.get(0));
+	}
+
 	/** The body content of the response, whether it was success or error */
 	public InputStream getContentStream() throws IORuntimeException {
 		try {
