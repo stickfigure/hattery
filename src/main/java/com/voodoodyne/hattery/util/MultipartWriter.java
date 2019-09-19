@@ -91,7 +91,7 @@ public class MultipartWriter {
 			final String headers =
 					"Content-Disposition: form-data; name=\"" + escapeQuotes(key) + "\"; filename=\"" + escapeQuotes(ba.getFilename()) + "\"" + LineWriter.CRLF
 					+ "Content-Type: " + ba.getContentType() + LineWriter.CRLF
-					+ "Content-Transfer-Encoding: binary" + LineWriter.CRLF;
+					;
 
 			log.debug("Writing binary part:\n" + headers);
 
