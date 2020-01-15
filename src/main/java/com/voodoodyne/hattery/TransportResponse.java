@@ -15,7 +15,7 @@ public interface TransportResponse {
 	InputStream getContentStream() throws IOException;
 
 	/** Raw bytes of response. Might be more efficient, might not */
-	byte[] getContent() throws IOException;
+	byte[] getContentBytes() throws IOException;
 
 	/** Response headers */
 	ListMultimap<String, String> getHeaders() throws IOException;

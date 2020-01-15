@@ -79,44 +79,6 @@ public class HttpResponse {
 		return location.isEmpty() ? Optional.empty() : Optional.of(location.get(0));
 	}
 
-	/** The body content of the response, whether it was success or error */
-	public InputStream getContentStream() throws IORuntimeException {
-		try {
-			return transportResponse.getContentStream();
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
-	}
-
-	/** The body content of the response, whether it was success or error */
-	public byte[] getContent() throws IORuntimeException {
-		try {
-			return transportResponse.getContent();
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
-	}
-
-	/** The body content of the response, throwing HttpException if response code is not successful */
-	public InputStream getSuccessContentStream() throws HttpException, IORuntimeException {
-		succeed();
-		try {
-			return transportResponse.getContentStream();
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
-	}
-
-	/** The body content of the response, throwing HttpException if response code is not successful */
-	public byte[] getSuccessContent() throws HttpException, IORuntimeException {
-		succeed();
-		try {
-			return transportResponse.getContent();
-		} catch (IOException e) {
-			throw new IORuntimeException(e);
-		}
-	}
-
 	/**
 	 * Call this if you don't care about the response body, you only want it to ensure that the request was successful
 	 * @return this
@@ -124,7 +86,7 @@ public class HttpResponse {
 	 */
 	public HttpResponse succeed() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 400)
-			throw new HttpException(getResponseCode(), getHeaders(), getContent());
+			throw new HttpException(getResponseCode(), getHeaders(), getContentBytes());
 
 		return this;
 	}
@@ -134,7 +96,7 @@ public class HttpResponse {
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(final Class<T> type) throws HttpException, IORuntimeException {
-		return succeed().contentAs(type);
+		return succeed().getContentAs(type);
 	}
 
 	/**
@@ -142,7 +104,7 @@ public class HttpResponse {
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(final TypeReference<T> type) throws HttpException, IORuntimeException {
-		return succeed().contentAs(type);
+		return succeed().getContentAs(type);
 	}
 
 	/**
@@ -150,7 +112,17 @@ public class HttpResponse {
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public <T> T as(final JavaType type) throws HttpException, IORuntimeException {
-		return succeed().contentAs(type);
+		return succeed().getContentAs(type);
+	}
+
+	/** The body content of the response, throwing HttpException if response code is not successful */
+	public InputStream asStream() throws HttpException, IORuntimeException {
+		return succeed().getContentStream();
+	}
+
+	/** The body content of the response, throwing HttpException if response code is not successful */
+	public byte[] asBytes() throws HttpException, IORuntimeException {
+		return succeed().getContentBytes();
 	}
 
 	/**
@@ -158,7 +130,7 @@ public class HttpResponse {
 	 * @throws HttpException if there was a nonsuccess error code
 	 */
 	public String asString(final Charset charset) throws HttpException, IORuntimeException {
-		return new String(getSuccessContent(), charset);
+		return new String(asBytes(), charset);
 	}
 
 	/**
@@ -169,10 +141,32 @@ public class HttpResponse {
 		return asString(StandardCharsets.UTF_8);
 	}
 
+	/** The body content of the response, whether it was success or error */
+	public InputStream getContentStream() throws IORuntimeException {
+		try {
+			return transportResponse.getContentStream();
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
+	}
+
+	/**
+	 * The body content of the response, whether it was success or error
+	 * Normally you should use {@code asBytes()} instead to check success.
+	 */
+	public byte[] getContentBytes() throws IORuntimeException {
+		try {
+			return transportResponse.getContentBytes();
+		} catch (IOException e) {
+			throw new IORuntimeException(e);
+		}
+	}
+
 	/**
 	 * Convert the response (whether success or error) to a JSON object using Jackson.
+	 * Normally you should use {@code as()} instead to check success.
 	 */
-	public <T> T contentAs(final Class<T> type) throws IORuntimeException {
+	public <T> T getContentAs(final Class<T> type) throws IORuntimeException {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
@@ -182,8 +176,9 @@ public class HttpResponse {
 
 	/**
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
+	 * Normally you should use {@code as()} instead to check success.
 	 */
-	public <T> T contentAs(final TypeReference<T> type) throws IORuntimeException {
+	public <T> T getContentAs(final TypeReference<T> type) throws IORuntimeException {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {
@@ -193,8 +188,9 @@ public class HttpResponse {
 
 	/**
 	 * Convert the response  (whether success or error) to a JSON object using Jackson
+	 * Normally you should use {@code as()} instead to check success.
 	 */
-	public <T> T contentAs(final JavaType type) throws IORuntimeException {
+	public <T> T getContentAs(final JavaType type) throws IORuntimeException {
 		try {
 			return mapper.readValue(getContentStream(), type);
 		} catch (IOException e) {

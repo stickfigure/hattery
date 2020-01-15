@@ -132,7 +132,7 @@ public class AppEngineTransport implements Transport {
 		}
 
 		@Override
-		public byte[] getContent() throws IOException {
+		public byte[] getContentBytes() throws IOException {
 			return this.getResponse().getContent();
 		}
 

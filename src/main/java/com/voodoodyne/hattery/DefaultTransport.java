@@ -150,7 +150,7 @@ public class DefaultTransport implements Transport {
 			}
 
 			@Override
-			public byte[] getContent() throws IOException {
+			public byte[] getContentBytes() throws IOException {
 				return ByteStreams.toByteArray(getContentStream());
 			}
 

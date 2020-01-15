@@ -81,11 +81,11 @@ class HttpResponseTest {
 	@Test
 	void getContent() throws Exception {
 		final byte[] byteTest = "test".getBytes();
-		when(transportResponse.getContent()).thenReturn(byteTest);
+		when(transportResponse.getContentBytes()).thenReturn(byteTest);
 		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
 
 		final HttpResponse response = new HttpResponse(transportResponse, new ObjectMapper());
-		assertThat(response.getContent()).isEqualTo(byteTest);
+		assertThat(response.getContentBytes()).isEqualTo(byteTest);
 	}
 	
 	/** */
@@ -109,20 +109,20 @@ class HttpResponseTest {
 		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
 		doReturn(response).when(response).succeed();
 		
-		assertThat(response.getSuccessContentStream()).isEqualTo(byteArrayInputStream);
+		assertThat(response.asStream()).isEqualTo(byteArrayInputStream);
 	}
 	
 	/** */
 	@Test
 	void getSuccessContent() throws Exception {
 		final byte[] byteTest = "test".getBytes();
-		when(transportResponse.getContent()).thenReturn(byteTest);
+		when(transportResponse.getContentBytes()).thenReturn(byteTest);
 		when(transportResponse.getHeaders()).thenReturn(ArrayListMultimap.create());
 
 		final HttpResponse response = spy(new HttpResponse(transportResponse, new ObjectMapper()));
 		doReturn(response).when(response).succeed();
 		
-		assertThat(response.getSuccessContent()).isEqualTo(byteTest);
+		assertThat(response.asBytes()).isEqualTo(byteTest);
 	}
 	
 	/** */
