@@ -504,9 +504,16 @@ public class HttpRequest {
 		}
 
 		if (output instanceof TeeOutputStream) {
-			byte[] bytes = ((ByteArrayOutputStream)((TeeOutputStream)output).getTwo()).toByteArray();
-			if (bytes.length > 0)
-				log.debug("Wrote body: {}", new String(bytes, StandardCharsets.UTF_8));
+			final byte[] bytes = ((ByteArrayOutputStream)((TeeOutputStream)output).getTwo()).toByteArray();
+			if (bytes.length > 0) {
+				if (log.isTraceEnabled()) {
+					log.debug("Wrote body: {}", new String(bytes, StandardCharsets.UTF_8));
+				} else if (log.isDebugEnabled()) {
+					// Put a reasonable cap on how long this can be, otherwise we might generate excessive logging
+					final int length = Math.min(600, bytes.length);
+					log.debug("Wrote body: {}", new String(bytes, 0, length, StandardCharsets.UTF_8));
+				}
+			}
 		}
 	}
 
