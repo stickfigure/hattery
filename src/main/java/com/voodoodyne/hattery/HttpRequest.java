@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -482,11 +483,13 @@ public class HttpRequest {
 			log.debug("Writing multipart body");
 			MultipartWriter writer = new MultipartWriter(output);
 			writer.write(QueryParamValue.filterOut(params));
+			Preconditions.checkState(body == null, "Cannot specify body() for type %s", ctype);
 		}
 		else if (ctype != null && ctype.startsWith(APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING)) {
 			output = tee(output);
 			final String queryString = getQuery(QueryParamValue.filterOut(params));
 			output.write(queryString.getBytes(StandardCharsets.UTF_8));
+			Preconditions.checkState(body == null, "Cannot specify body() for type %s", ctype);
 		}
 		else if (body instanceof byte[]) {
 			// Don't tee, probably binary
@@ -502,6 +505,15 @@ public class HttpRequest {
 			output = tee(output);
 			mapper.writeValue(output, body);
 		}
+		else if (body instanceof String) {
+			// Assume it is something like application/graphql... write it out in best guess about charset
+			final Charset charset = guessCharset(ctype);
+			output = tee(output);
+			output.write(((String)body).getBytes(charset));
+		}
+		else if (body != null) {
+			throw new UnsupportedOperationException(String.format("Not sure what to do with %s body for content-type %s", body.getClass(), ctype));
+		}
 
 		if (output instanceof TeeOutputStream) {
 			final byte[] bytes = ((ByteArrayOutputStream)((TeeOutputStream)output).getTwo()).toByteArray();
@@ -515,6 +527,19 @@ public class HttpRequest {
 				}
 			}
 		}
+	}
+
+	private Charset guessCharset(final String ctype) {
+		if (ctype == null)
+			return StandardCharsets.UTF_8;
+
+		final int ind = ctype.indexOf("charset=");
+		if (ind >= 0) {
+			final String charset = ctype.substring(ind + "charset=".length());
+			return Charset.forName(charset);
+		}
+
+		return StandardCharsets.UTF_8;
 	}
 
 	private OutputStream tee(final OutputStream output) {
