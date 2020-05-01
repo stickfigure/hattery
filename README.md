@@ -2,8 +2,6 @@
 
 Hattery (mad, of course) is a Java library for making HTTP requests. It provides a simple fluent interface based around immutable objects.
  
-Hattery includes two transports. `DefaultTransport` uses `HttpURLConnection`; `AppEngineTransport` uses the asynchronous urlfetch service and allows multiple requests to operate in parallel.
- 
 ```java
 // Requests are immutable, start with the base that uses DefaultTransport
 import static com.voodoodyne.hattery.HttpRequest.HTTP;
@@ -30,7 +28,7 @@ Thing thing3 = HTTP
 
 // Some extra stuff you can set
 List<Thing> things4 = HTTP
-	.transport(new AppEngineTransport())
+	.transport(new MyCustomTransport())
 	.url("http://example.com")
 	.path("/4")
 	.path("andMore")	// adds '/' between path elements automatically
@@ -92,4 +90,4 @@ Some extra features:
    * If `POST()` and no `body()`, parameters will be submitted as `application/x-www-form-urlencoded`
      * ...unless a `BinaryAttachment` parameter is included, in which case the content becomes `multipart/form-data`.
      * ...or unless params are submitted as `queryParam()`, which forces them onto the query string.
- * To run multiple async fetches concurrently with Google App Engine, use the `AppEngineTransport` and `fetch()` multiple `HttpResponse` objects. Getting the content of the response (say, via `as()`) completes the underlying asynchronous `Future`.
+ 
