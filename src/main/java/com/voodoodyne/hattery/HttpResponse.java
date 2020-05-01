@@ -2,6 +2,7 @@ package com.voodoodyne.hattery;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ListMultimap;
 import com.voodoodyne.hattery.util.CaseInsensitiveListMultimap;
@@ -139,6 +140,11 @@ public class HttpResponse {
 	 */
 	public String asString() throws HttpException, IORuntimeException {
 		return asString(StandardCharsets.UTF_8);
+	}
+
+	/** Shorthand for as(JsonNode.class) */
+	public JsonNode asNode() throws HttpException, IORuntimeException {
+		return as(JsonNode.class);
 	}
 
 	/** The body content of the response, whether it was success or error */
