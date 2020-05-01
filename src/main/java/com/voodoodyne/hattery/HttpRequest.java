@@ -60,6 +60,8 @@ import java.util.function.Function;
 @Slf4j
 @ToString(exclude = {"mapper", "preflight", "postflight", "body"})	// too noisy
 public class HttpRequest {
+	/** The immutable starting point for any http request chain */
+	public static HttpRequest HTTP = new HttpRequest(new DefaultTransport());
 
 	/** */
 	public static final String APPLICATION_JSON = "application/json";
@@ -109,7 +111,9 @@ public class HttpRequest {
 
 	/**
 	 * Start with the DefaultTransport
+	 * @deprecated use HttpRequest.HTTP instead
 	 */
+	@Deprecated
 	public HttpRequest() {
 		this(new DefaultTransport());
 	}
@@ -117,7 +121,7 @@ public class HttpRequest {
 	/**
 	 * Default values
 	 */
-	public HttpRequest(final Transport transport) {
+	HttpRequest(final Transport transport) {
 		this.transport = transport;
 		this.method = HttpMethod.GET.name();
 		this.url = null;

@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.voodoodyne.hattery.HttpRequest.HTTP;
 
 /**
  * @author Jeff Schnitzer
@@ -79,7 +80,8 @@ class AppEngineTest {
 		final URLFetchService fetchService = (URLFetchService)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?>[]{URLFetchService.class}, callCounter);
 
 		try {
-			new HttpRequest(new AppEngineTransport(fetchService))
+			HTTP
+					.transport(new AppEngineTransport(fetchService))
 					.url("http://voodoodyne1.appspot.com/timeout")
 					.param("time", "4")
 					.retries(1)

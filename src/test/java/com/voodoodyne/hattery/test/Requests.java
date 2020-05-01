@@ -33,7 +33,7 @@ import com.voodoodyne.hattery.HttpRequest;
 public class Requests {
 
 	/** */
-	public static HttpRequest REQ = new HttpRequest();
+	public static HttpRequest REQ = HttpRequest.HTTP;
 
 	/** */
 	public static HttpRequest HEADERS_ENDPOINT = REQ.url("http://headers.jsontest.com");

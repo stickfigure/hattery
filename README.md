@@ -5,32 +5,31 @@ Hattery (mad, of course) is a Java library for making HTTP requests. It provides
 Hattery includes two transports. `DefaultTransport` uses `HttpURLConnection`; `AppEngineTransport` uses the asynchronous urlfetch service and allows multiple requests to operate in parallel.
  
 ```java
-// Typically start with an empty request, no need to hold on to the transport.
-// In fact, since requests are immutable, feel free to make them final static.
-HttpRequest request = new HttpRequest();	// uses DefaultTransport
+// Requests are immutable, start with the base that uses DefaultTransport
+import static com.voodoodyne.hattery.HttpRequest.HTTP;
 
 // A GET request
-Thing thing1 = request
+Thing thing1 = HTTP
 	.url("http://example.com/1")
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
 // A POST request as application/x-www-form-urlencoded 
-Thing thing2 = request
+Thing thing2 = HTTP
 	.url("http://example.com/2")
 	.POST()
 	.param("foo", "bar")
 	.fetch().as(Thing.class);
 
 // A POST request with a JSON body
-Thing thing3 = request
+Thing thing3 = HTTP
 	.url("http://example.com/3")
 	.POST()
 	.body(objectThatWillBeSerializedWithJackson)
 	.fetch().as(Thing.class);
 
 // Some extra stuff you can set
-List<Thing> things4 = request
+List<Thing> things4 = HTTP
 	.transport(new AppEngineTransport())
 	.url("http://example.com")
 	.path("/4")
@@ -55,19 +54,17 @@ Install with maven:
 	</dependency>
 ```
 
-Hattery requires Java 8. The last version that supported Java 7 is 0.16.
+Hattery requires Java 8.
 
 Some philosphy:
 
- * Checked exceptions are a horrible misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
  * `HttpRequest`s are immutable and thread-safe. You can pass them around anywhere. 
+ * Checked exceptions are a horrible misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
  
 A common pattern is to build a partial request and extend it when you need it; don't rebuild all the state every time. A contrived, self-contained example:
 
 ```java
 public class FooBarService {
-	private static final HttpRequest HTTP = new HttpRequest();
-	
 	private final HttpRequest base;
 	
 	public Service(final String authorization) {
