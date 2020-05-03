@@ -22,6 +22,7 @@
 
 package com.voodoodyne.hattery;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.io.ByteStreams;
@@ -139,6 +140,8 @@ public class DefaultTransport implements Transport {
 		}
 
 		return new TransportResponse() {
+			private boolean streamed;
+
 			@Override
 			public int getResponseCode() throws IOException {
 				return responseCode;
@@ -146,6 +149,8 @@ public class DefaultTransport implements Transport {
 
 			@Override
 			public InputStream getContentStream() throws IOException {
+				Preconditions.checkState(!streamed, "You can only stream the data once");
+				streamed = true;
 				return content;
 			}
 

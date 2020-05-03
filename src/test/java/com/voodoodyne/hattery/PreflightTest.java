@@ -22,12 +22,13 @@
 
 package com.voodoodyne.hattery;
 
-import com.voodoodyne.hattery.test.Requests;
+import com.voodoodyne.hattery.test.Snoop;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.voodoodyne.hattery.test.Snoop.SNOOP;
 
 /**
  */
@@ -35,13 +36,12 @@ class PreflightTest {
 
 	/** */
 	@Test
-	@SuppressWarnings("unchecked")
 	void preflightCanChangeRequest() throws Exception {
-		final Map<String, String> entries = Requests.HEADERS_ENDPOINT
-				.header("foo", "notthisone")
-				.preflightAndThen(req -> req.header("foo", "bar"))
-				.fetch().as(Map.class);
+		final Snoop snoop = SNOOP
+				.header("Foo", "notthisone")
+				.preflightAndThen(req -> req.header("Foo", "bar"))
+				.fetch().as(Snoop.class);
 
-		assertThat(entries).containsEntry("foo", "bar");
+		assertThat(snoop.getHeaders()).containsEntry("Foo", "bar");
 	}
 }

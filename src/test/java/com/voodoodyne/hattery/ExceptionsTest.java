@@ -20,30 +20,26 @@
  * THE SOFTWARE.
  */
 
-package com.voodoodyne.hattery.test;
+package com.voodoodyne.hattery;
 
-import com.voodoodyne.hattery.HttpRequest;
+import com.voodoodyne.hattery.test.Snoop;
+import org.junit.jupiter.api.Test;
 
+import static com.voodoodyne.hattery.test.Snoop.SNOOP;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Some constant requests - they're immutable!
- * 
  * @author Jeff Schnitzer
  */
-public class Requests {
+class ExceptionsTest {
 
 	/** */
-	public static HttpRequest REQ = HttpRequest.HTTP;
-
-	/** */
-	public static HttpRequest HEADERS_ENDPOINT = REQ.url("http://headers.jsontest.com");
-
-	/** */
-	public static  HttpRequest MD5_ENDPOINT = REQ.url("http://md5.jsontest.com");
-
-	/** */
-	public static  HttpRequest ECHO_ENDPOINT = REQ.url("http://echo.jsontest.com");
-
-	/** */
-	public static  HttpRequest VALIDATE_ENDPOINT = REQ.url("http://validate.jsontest.com");
+	@Test
+	void jacksonExceptionsProduceIORException() {
+		assertThrows(IORuntimeException.class, () -> {
+			SNOOP
+					.url("http://example.com")
+					.fetch().as(Snoop.class);	// wrong response
+		});
+	}
 }

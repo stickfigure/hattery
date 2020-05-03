@@ -22,31 +22,43 @@
 
 package com.voodoodyne.hattery;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.voodoodyne.hattery.test.Snoop;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.voodoodyne.hattery.HttpRequest.HTTP;
 import static com.voodoodyne.hattery.test.Snoop.SNOOP;
 
 /**
+ * @author Jeff Schnitzer
  */
-class PostflightTest {
+class PathsTest {
+
+	/** */
+	@SuppressWarnings("unchecked")
+	@Test
+	void pathsAreSubmitted() throws Exception {
+		final Snoop snoop = SNOOP
+				.path("/one")
+				.path("/two")
+				.fetch().as(Snoop.class);
+
+		assertThat(snoop.getPath()).isEqualTo("/one/two");
+	}
 
 	/** */
 	@Test
-	void postflightCanInspectHeaders() throws Exception {
-		final ListMultimap<String, String> headers = ArrayListMultimap.create();
+	void addsSlashToPathWhenAppropriate() {
+		final HttpRequest request = HTTP;
+		assertThat(request.url("http://example.com").path("foo").getUrl()).isEqualTo("http://example.com/foo");
+		assertThat(request.url("http://example.com/").path("foo").getUrl()).isEqualTo("http://example.com/foo");
+		assertThat(request.url("http://example.com").path("/foo").getUrl()).isEqualTo("http://example.com/foo");
+	}
 
-		SNOOP
-				.header("Foo", "notthisone")
-				.postflightAndThen(response -> {
-					headers.putAll(response.getHeaders());
-					return response;
-				})
-				.fetch().succeed();
-
-		assertThat(headers).containsEntry("Server", "Google Frontend");
+	/** */
+	@Test
+	void removesSlashFromPathWhenAppropriate() {
+		final HttpRequest request = HTTP;
+		assertThat(request.url("http://example.com/").path("/foo").getUrl()).isEqualTo("http://example.com/foo");
 	}
 }

@@ -22,31 +22,60 @@
 
 package com.voodoodyne.hattery;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.voodoodyne.hattery.test.Snoop;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.voodoodyne.hattery.test.Snoop.SNOOP;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
+ * @author Jeff Schnitzer
  */
-class PostflightTest {
+class HeadersTest {
 
 	/** */
 	@Test
-	void postflightCanInspectHeaders() throws Exception {
-		final ListMultimap<String, String> headers = ArrayListMultimap.create();
+	void extraHeadersAreSubmitted() throws Exception {
+		final Snoop snoop = SNOOP
+				.header("Foo", "bar")
+				.header("Baz", "bat")
+				.fetch().as(Snoop.class);
 
-		SNOOP
-				.header("Foo", "notthisone")
-				.postflightAndThen(response -> {
-					headers.putAll(response.getHeaders());
-					return response;
-				})
-				.fetch().succeed();
+		assertThat(snoop.getHeaders()).containsEntry("Foo", "bar");
+		assertThat(snoop.getHeaders()).containsEntry("Baz", "bat");
+	}
 
-		assertThat(headers).containsEntry("Server", "Google Frontend");
+	/** */
+	@Test
+	void headersCanBeOverridden() throws Exception {
+		final Snoop snoop = SNOOP
+				.header("Foo", "zzz")
+				.header("Foo", "yyy")
+				.fetch().as(Snoop.class);
+
+		assertThat(snoop.getHeaders()).containsEntry("Foo", "yyy");
+	}
+
+	/** */
+	@Test
+	void contentTypeCanBeSpecified() throws Exception {
+		final Snoop snoop = SNOOP
+				.header("Foo", "bar")
+				.contentType("not/real")
+				.fetch().as(Snoop.class);
+
+		assertThat(snoop.getHeaders()).containsEntry("Foo", "bar");
+		assertThat(snoop.getContentType()).isEqualTo("not/real");
+	}
+
+	/** */
+	@Test
+	void basicAuthIsSubmitted() {
+		final Snoop snoop = SNOOP
+				.basicAuth("test", "testing")
+				.fetch().as(Snoop.class);
+
+		assertThat(snoop.getHeaders()).containsEntry("Authorization", "Basic dGVzdDp0ZXN0aW5n");
 	}
 }

@@ -22,31 +22,31 @@
 
 package com.voodoodyne.hattery;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.voodoodyne.hattery.test.Snoop;
+import lombok.Data;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.voodoodyne.hattery.test.Snoop.SNOOP;
 
 /**
+ * @author Jeff Schnitzer
  */
-class PostflightTest {
+class BodyTest {
 
-	/** */
+	@Data
+	public static class SomeBody {
+		private final String foo;
+	}
+
 	@Test
-	void postflightCanInspectHeaders() throws Exception {
-		final ListMultimap<String, String> headers = ArrayListMultimap.create();
+	void bodyIsSubmittedAsJSON() {
+		final Snoop snoop = SNOOP
+				.POST()
+				.body(new SomeBody("bar"))
+				.fetch().as(Snoop.class);
 
-		SNOOP
-				.header("Foo", "notthisone")
-				.postflightAndThen(response -> {
-					headers.putAll(response.getHeaders());
-					return response;
-				})
-				.fetch().succeed();
-
-		assertThat(headers).containsEntry("Server", "Google Frontend");
+		assertThat(snoop.getContentType()).isEqualTo("application/json");
+		assertThat(snoop.getBody().toString()).isEqualTo("{\"foo\":\"bar\"}");
 	}
 }

@@ -20,33 +20,36 @@
  * THE SOFTWARE.
  */
 
-package com.voodoodyne.hattery;
+package com.voodoodyne.hattery.test;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.voodoodyne.hattery.test.Snoop;
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.voodoodyne.hattery.HttpRequest;
+import lombok.Data;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.voodoodyne.hattery.test.Snoop.SNOOP;
+import java.util.Map;
+
 
 /**
+ * The response that comes back from the snoop service
+ *
+ * @author Jeff Schnitzer
  */
-class PostflightTest {
+@Data
+public class Snoop {
 
 	/** */
-	@Test
-	void postflightCanInspectHeaders() throws Exception {
-		final ListMultimap<String, String> headers = ArrayListMultimap.create();
+	public static HttpRequest SNOOP = HttpRequest.HTTP.url("https://hattery-snoop.appspot.com");
 
-		SNOOP
-				.header("Foo", "notthisone")
-				.postflightAndThen(response -> {
-					headers.putAll(response.getHeaders());
-					return response;
-				})
-				.fetch().succeed();
+	private final String url;
+	private final String method;
+	private final String path;
+	private final String query;
+	private final Map<String, String[]> queryParams;
+	private final Map<String, String[]> formParams;
+	private final Map<String, String> headers;
+	private final JsonNode body;
 
-		assertThat(headers).containsEntry("Server", "Google Frontend");
+	public String getContentType() {
+		return getHeaders().get("Content-Type");
 	}
 }
