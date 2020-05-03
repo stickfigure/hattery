@@ -110,15 +110,6 @@ public class HttpRequest {
 	private final boolean followRedirects;
 
 	/**
-	 * Start with the DefaultTransport
-	 * @deprecated use HttpRequest.HTTP instead
-	 */
-	@Deprecated
-	public HttpRequest() {
-		this(new DefaultTransport());
-	}
-
-	/**
 	 * Default values
 	 */
 	HttpRequest(final Transport transport) {
