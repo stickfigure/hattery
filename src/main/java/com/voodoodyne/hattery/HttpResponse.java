@@ -169,6 +169,22 @@ public class HttpResponse {
 	}
 
 	/**
+	 * The body content of the response, whether it was success or error
+	 * Normally you should use {@code asString()} instead to check success.
+	 */
+	public String getContentString(final Charset charset) throws IORuntimeException {
+		return new String(getContentBytes(), charset);
+	}
+
+	/**
+	 * The body content of the response, whether it was success or error. Assumes UTF-8.
+	 * Normally you should use {@code asString()} instead to check success.
+	 */
+	public String getContentString() throws IORuntimeException {
+		return getContentString(StandardCharsets.UTF_8);
+	}
+
+	/**
 	 * Convert the response (whether success or error) to a JSON object using Jackson.
 	 * Normally you should use {@code as()} instead to check success.
 	 */

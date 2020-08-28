@@ -78,6 +78,20 @@ class ResponseTest {
 
 	/** */
 	@Test
+	void getContentStringForError() throws Exception {
+		final HttpResponse response = HTTP.url("https://www.google.com/doesnotexist").fetch();
+		assertThat(response.getContentString()).startsWith("<!DOCTYPE html>");
+	}
+
+	/** */
+	@Test
+	void getContentStringFoSuccess() throws Exception {
+		final HttpResponse response = SNOOP.fetch().succeed();
+		assertThat(response.getContentString()).startsWith("{\"body\":");
+	}
+
+	/** */
+	@Test
 	void asStream() throws Exception {
 		final HttpResponse response = SNOOP.fetch().succeed();
 		assertThat(new String(ByteStreams.toByteArray(response.asStream()), StandardCharsets.UTF_8)).startsWith("{\"body\":");
