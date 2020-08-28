@@ -35,7 +35,6 @@ import static com.voodoodyne.hattery.test.Snoop.SNOOP;
 class PathsTest {
 
 	/** */
-	@SuppressWarnings("unchecked")
 	@Test
 	void pathsAreSubmitted() throws Exception {
 		final Snoop snoop = SNOOP

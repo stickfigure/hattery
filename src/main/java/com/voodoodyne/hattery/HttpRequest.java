@@ -476,7 +476,7 @@ public class HttpRequest {
 
 		if (MultipartWriter.CONTENT_TYPE.equals(ctype)) {
 			log.debug("Writing multipart body");
-			MultipartWriter writer = new MultipartWriter(output);
+			final MultipartWriter writer = new MultipartWriter(output);
 			writer.write(QueryParamValue.filterOut(params));
 			Preconditions.checkState(body == null, "Cannot specify body() for type %s", ctype);
 		}
