@@ -164,6 +164,11 @@ public class HttpRequest {
 		return method(HttpMethod.DELETE);
 	}
 
+	/** Shortcut for method(HttpMethod.PATCH) */
+	public HttpRequest PATCH() {
+		return method(HttpMethod.PATCH);
+	}
+
 	/**
 	 * Replaces the existing url wholesale
 	 */
