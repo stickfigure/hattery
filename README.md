@@ -83,7 +83,7 @@ public class FooBarService {
  
 Some extra features:
 
- * `path()` calls append to the url; `url()` calls replace the whole url.
+ * `path()` append sto the url; `url()` replaces the whole url.
  * `Content-Type` determines what is to be done with the `body()` and `param()`s (if either are present).
  * Unspecified `Content-Type` is inferred:
    * If there is a `body()`, `application/json` is assumed. Any `param()`s will become query parameters.
