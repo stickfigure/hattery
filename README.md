@@ -26,7 +26,7 @@ Thing thing3 = HTTP
 	.body(objectThatWillBeSerializedWithJackson)
 	.fetch().as(Thing.class);
 
-// Some extra stuff you can set
+// Some extra stuff you can configure
 List<Thing> things4 = HTTP
 	.transport(new MyCustomTransport())
 	.url("http://example.com")
@@ -52,7 +52,7 @@ Install with maven:
 	</dependency>
 ```
 
-Hattery requires Java 8.
+Hattery requires Java 8+.
 
 Some philosphy:
 
@@ -83,7 +83,7 @@ public class FooBarService {
  
 Some extra features:
 
- * `path()` append sto the url; `url()` replaces the whole url.
+ * `path()` appends to the url; `url()` replaces the whole url.
  * `Content-Type` determines what is to be done with the `body()` and `param()`s (if either are present).
  * Unspecified `Content-Type` is inferred:
    * If there is a `body()`, `application/json` is assumed. Any `param()`s will become query parameters.
