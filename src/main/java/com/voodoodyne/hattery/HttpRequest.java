@@ -30,10 +30,7 @@ import com.google.common.io.ByteStreams;
 import com.voodoodyne.hattery.util.MultipartWriter;
 import com.voodoodyne.hattery.util.QueryBuilder;
 import com.voodoodyne.hattery.util.TeeOutputStream;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -210,6 +207,17 @@ public class HttpRequest {
 	}
 
 	/**
+	 * Set/override the parameter, converting the value to JSON using the current mapper.
+	 * @param value can be null to remove a parameter, or any object that will be mapped to JSON
+	 * @return the updated, immutable request
+	 */
+	@SneakyThrows
+	public HttpRequest paramJson(final String name, final Object value) {
+		final String json = mapper.writeValueAsString(value);
+		return paramAnything(name, json);
+	}
+
+	/**
 	 * Set/override the parameters. Values can be null to remove a parameter.
 	 * @return the updated, immutable request
 	 */
@@ -217,6 +225,19 @@ public class HttpRequest {
 		HttpRequest here = this;
 		for (Param param: params)
 			here = here.param(param.getName(), param.getValue());
+
+		return here;
+	}
+
+	/**
+	 * Set/override the parameters. Values can be null to remove a parameter.
+	 * JSON encodes the value.
+	 * @return the updated, immutable request
+	 */
+	public HttpRequest paramJson(final Param... params) {
+		HttpRequest here = this;
+		for (Param param: params)
+			here = here.paramJson(param.getName(), param.getValue());
 
 		return here;
 	}
@@ -251,6 +272,20 @@ public class HttpRequest {
 	}
 
 	/**
+	 * <p>Set/override the parameter with a value, forcing the parameter to be part of the query string
+	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
+	 * does the right thing.</p>
+	 * <p>This version always JSON encodes the value and passes it as text</p>
+	 * @param value can be null to remove a parameter, or an Iterable to provide multiple values with the same key
+	 * @return the updated, immutable request
+	 */
+	@SneakyThrows
+	public HttpRequest queryParamJson(final String name, final Object value) {
+		final String json = mapper.writeValueAsString(value);
+		return paramAnything(name, QueryParamValue.of(json));
+	}
+
+	/**
 	 * Set/override the parameters, forcing the parameter to be part of the query string
 	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
 	 * does the right thing.
@@ -261,6 +296,22 @@ public class HttpRequest {
 		HttpRequest here = this;
 		for (Param param: params)
 			here = here.queryParam(param.getName(), param.getValue());
+
+		return here;
+	}
+
+	/**
+	 * <p>Set/override the parameters, forcing the parameter to be part of the query string
+	 * even if POSTing form data or multipart form data. Normally you just use param(), which automatically
+	 * does the right thing.</p>
+	 * <p>This version always JSON encodes the value and passes it as text</p>
+	 * @param params can have null values to remove a parameter.
+	 * @return the updated, immutable request
+	 */
+	public HttpRequest queryParamJson(final Param... params) {
+		HttpRequest here = this;
+		for (Param param: params)
+			here = here.queryParamJson(param.getName(), param.getValue());
 
 		return here;
 	}

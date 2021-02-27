@@ -44,8 +44,10 @@ public class Snoop {
 	private final String method;
 	private final String path;
 	private final String query;
-	private final Map<String, String[]> queryParams;
-	private final Map<String, String[]> formParams;
+	private final Map<String, String> queryParams;
+	private final Map<String, String[]> queryParamsAll;
+	private final Map<String, String> formParams;
+	private final Map<String, String[]> formParamsAll;
 	private final Map<String, String> headers;
 	private final JsonNode body;
 

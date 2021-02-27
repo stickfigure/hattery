@@ -22,11 +22,13 @@
 
 package com.voodoodyne.hattery;
 
+import com.google.common.collect.ImmutableMap;
 import com.voodoodyne.hattery.test.Snoop;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.voodoodyne.hattery.test.Snoop.SNOOP;
@@ -45,6 +47,17 @@ class ParamsTest {
 				.fetch().as(Snoop.class);
 
 		assertThat(snoop.getQuery()).isEqualTo("text=example");
+	}
+
+	/** */
+	@Test
+	void paramJsonIsSubmitted() throws Exception {
+		final Map<String, String> map = ImmutableMap.of("foo", "bar");
+		final Snoop snoop = SNOOP
+				.paramJson("text", map)
+				.fetch().as(Snoop.class);
+
+		assertThat(snoop.getQueryParams().get("text")).isEqualTo("{\"foo\":\"bar\"}");
 	}
 
 	/** */
