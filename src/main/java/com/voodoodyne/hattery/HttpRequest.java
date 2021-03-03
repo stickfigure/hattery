@@ -62,6 +62,8 @@ public class HttpRequest {
 
 	/** */
 	public static final String APPLICATION_JSON = "application/json";
+	public static final String APPLICATION_XML = "application/xml";
+	public static final String TEXT_XML = "text/xml";
 	public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded; charset=utf-8";
 
 	/** Just the first part of it for matching */
@@ -552,7 +554,7 @@ public class HttpRequest {
 			final long length = ByteStreams.copy((InputStream)body, output);
 			log.debug("Wrote InputStream body of length {}", length);
 		}
-		else if (APPLICATION_JSON.equals(ctype)) {
+		else if (APPLICATION_JSON.equals(ctype) || APPLICATION_XML.equals(ctype) || TEXT_XML.equals(ctype)) {
 			output = tee(output);
 			mapper.writeValue(output, body);
 		}
