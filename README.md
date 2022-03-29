@@ -8,38 +8,46 @@ import static com.voodoodyne.hattery.HttpRequest.HTTP;
 
 // A GET request
 Thing thing1 = HTTP
-	.url("http://example.com/1")
-	.param("foo", "bar")
-	.fetch().as(Thing.class);
+    .url("http://example.com/1")
+    .param("foo", "bar")
+    .fetch().as(Thing.class);
 
 // A POST request as application/x-www-form-urlencoded 
 Thing thing2 = HTTP
-	.url("http://example.com/2")
-	.POST()
-	.param("foo", "bar")
-	.fetch().as(Thing.class);
+    .url("http://example.com/2")
+    .POST()
+    .param("foo", "bar")
+    .fetch().as(Thing.class);
 
 // A POST request with a JSON body
 Thing thing3 = HTTP
-	.url("http://example.com/3")
-	.POST()
-	.body(objectThatWillBeSerializedWithJackson)
-	.fetch().as(Thing.class);
+    .url("http://example.com/3")
+    .POST()
+    .body(objectThatWillBeSerializedWithJackson)
+    .fetch().as(Thing.class);
 
 // Some extra stuff you can configure
 List<Thing> things4 = HTTP
-	.transport(new MyCustomTransport())
-	.url("http://example.com")
-	.path("/4")
-	.path("andMore")	// adds '/' between path elements automatically
-	.header("X-Whatever", "WHATEVER")
-	.basicAuth("myname", "mypassword")
-	.param("foo", "bar")
-	.timeout(1000)
-	.retries(3)
-	.mapper(new MySpecialObjectMapper())
-	.preflightAndThen(req -> req.header("X-Auth-Signature", sign(req)))
-	.fetch().as(new TypeReference<List<Thing>>(){});
+    .transport(new MyCustomTransport())
+    .url("http://example.com")
+    .path("/4")
+    .path("andMore")	// adds '/' between path elements automatically
+    .header("X-Whatever", "WHATEVER")
+    .basicAuth("myname", "mypassword")
+    .param("foo", "bar")
+    .timeout(1000)
+    .retries(3)
+    .mapper(new MySpecialObjectMapper())
+    .preflight(req -> req.header("X-Auth-Signature", sign(req)))
+    .fetch().as(new TypeReference<List<Thing>>(){});
+
+// Request objects are immutable and can be reused
+HttpRequest base = HTTP
+    .url("http://example.com/base/endpoint")
+    .timeout(1000);
+
+Cow cow = base.path("/cows/123").fetch().as(Cow.class);
+Goat goat = base.path("/goats/456").fetch().as(Goat.class);
 ```
 
 Install with maven:
