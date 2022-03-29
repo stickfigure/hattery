@@ -53,11 +53,11 @@ Goat goat = base.path("/goats/456").fetch().as(Goat.class);
 Install with maven:
 
 ```xml
-	<dependency>
-		<groupId>com.voodoodyne.hattery</groupId>
-		<artifactId>hattery</artifactId>
-		<version>look up the latest version number</version>
-	</dependency>
+    <dependency>
+        <groupId>com.voodoodyne.hattery</groupId>
+        <artifactId>hattery</artifactId>
+        <version>look up the latest version number</version>
+    </dependency>
 ```
 
 Hattery requires Java 8+.
@@ -71,21 +71,21 @@ A common pattern is to build a partial request and extend it when you need it; d
 
 ```java
 public class FooBarService {
-	private final HttpRequest base;
-	
-	public Service(final String authorization) {
-		this.base = HTTP
-			.url("http://example.com/api")
-			.header("Authorization", authorization);
-	}
-	
-	public Foo foo() {
-		return base.path("/foo").fetch().as(Foo.class);
-	}
+    private final HttpRequest base;
+    
+    public Service(final String authorization) {
+        this.base = HTTP
+            .url("http://example.com/api")
+            .header("Authorization", authorization);
+    }
+    
+    public Foo foo() {
+        return base.path("/foo").fetch().as(Foo.class);
+    }
 
-	public Bar bar(final String color) {
-		return base.path("/bar").param("color", color).fetch().as(Bar.class);
-	}
+    public Bar bar(final String color) {
+        return base.path("/bar").param("color", color).fetch().as(Bar.class);
+    }
 } 
 ```
  
