@@ -12,14 +12,14 @@ Thing thing1 = HTTP
     .param("foo", "bar")
     .fetch().as(Thing.class);
 
-// A POST request as application/x-www-form-urlencoded 
+// A POST request, application/x-www-form-urlencoded is inferred
 Thing thing2 = HTTP
     .url("http://example.com/2")
     .POST()
     .param("foo", "bar")
     .fetch().as(Thing.class);
 
-// A POST request with a JSON body
+// A POST request with a JSON body, application/json is inferred
 Thing thing3 = HTTP
     .url("http://example.com/3")
     .POST()
@@ -65,7 +65,7 @@ Hattery requires Java 8+.
 Some philosphy:
 
  * `HttpRequest`s are immutable and thread-safe. You can pass them around anywhere. 
- * Checked exceptions are a horrible misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
+ * Checked exceptions are a misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
  
 A common pattern is to build a partial request and extend it when you need it; don't rebuild all the state every time. A contrived, self-contained example:
 
