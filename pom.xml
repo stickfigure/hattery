@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<jackson.version>2.11.0</jackson.version>
+		<jackson.version>2.12.7.1</jackson.version>
 
 		<junit.jupiter.version>5.5.2</junit.jupiter.version>
 
