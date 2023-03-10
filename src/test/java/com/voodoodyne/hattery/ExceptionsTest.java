@@ -42,4 +42,14 @@ class ExceptionsTest {
 					.fetch().as(Snoop.class);	// wrong response
 		});
 	}
+
+	@Test
+	void canTranslateErrorsIntoSpecialExceptions() {
+		assertThrows(UnsupportedOperationException.class, () -> {
+			HttpRequest.HTTP
+					.url("http://example.com/doesnotexist")
+					.errorTranslator(UnsupportedOperationException::new)
+					.fetch().asNode();
+		});
+	}
 }

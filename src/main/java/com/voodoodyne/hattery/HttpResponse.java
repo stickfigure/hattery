@@ -31,6 +31,8 @@ public class HttpResponse {
 	@Getter
 	private final ObjectMapper mapper;
 
+	private final ErrorTranslator errorTranslator;
+
 	private CaseInsensitiveListMultimap<String> cachedHeaders;
 
 	/** The http response code */
@@ -87,7 +89,7 @@ public class HttpResponse {
 	 */
 	public HttpResponse succeed() throws HttpException {
 		if (getResponseCode() < 200 || getResponseCode() >= 400)
-			throw new HttpException(getResponseCode(), getHeaders(), getContentBytes());
+			throw errorTranslator.translate(new HttpException(getResponseCode(), getHeaders(), getContentBytes()));
 
 		return this;
 	}

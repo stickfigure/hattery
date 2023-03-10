@@ -108,6 +108,8 @@ public class HttpRequest {
 	/** Careful, defaults to true like most libraries */
 	private final boolean followRedirects;
 
+	private final ErrorTranslator errorTranslator;
+
 	/**
 	 * Default values
 	 */
@@ -125,17 +127,18 @@ public class HttpRequest {
 		this.preflight = Function.identity();
 		this.postflight = Function.identity();
 		this.followRedirects = true;
+		this.errorTranslator = e -> e;
 	}
 
 	/** Replace the existing transport */
 	public HttpRequest transport(final Transport transport) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/** */
 	public HttpRequest method(final String method) {
 		Preconditions.checkNotNull(method);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/** */
@@ -173,7 +176,7 @@ public class HttpRequest {
 	 */
 	public HttpRequest url(final String url) {
 		Preconditions.checkNotNull(url);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -256,7 +259,7 @@ public class HttpRequest {
 	 * Replace all the params with the specified values.
 	 */
 	public HttpRequest params(final Map<String, Object> params) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -321,14 +324,14 @@ public class HttpRequest {
 	/** Private implementation lets us add anything, but don't expose that to the world */
 	private HttpRequest paramAnything(final String name, final Object value) {
 		final Map<String, Object> params = combine(this.params, name, value);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
 	 * Provide a body that will be turned into JSON.
 	 */
 	public HttpRequest body(final Object body) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -336,7 +339,7 @@ public class HttpRequest {
 	 * json, form encoded, or multipart). If you're doing anything unusual, set an explicit content type.
 	 */
 	public HttpRequest contentType(final String value) {
-		return new HttpRequest(transport, method, url, params, value, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, value, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -349,7 +352,7 @@ public class HttpRequest {
 			return contentType(value);
 
 		final Map<String, String> headers = combine(this.headers, name, value);
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -369,28 +372,28 @@ public class HttpRequest {
 			}
 		}
 
-		return new HttpRequest(transport, method, url, params, contentType, body, Collections.unmodifiableMap(copiedHeaders), timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, Collections.unmodifiableMap(copiedHeaders), timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
 	 * Set a connection/read timeout in milliseconds, or 0 for no/default timeout.
 	 */
 	public HttpRequest timeout(final int millis) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, millis, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, millis, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
 	 * Set a retry count, or 0 for no retries
 	 */
 	public HttpRequest retries(final int retries) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
 	 * Set the mapper. Be somewhat careful here, ObjectMappers are themselves not immutable (sigh).
 	 */
 	public HttpRequest mapper(final ObjectMapper mapper) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -413,7 +416,7 @@ public class HttpRequest {
 	 * so you can safely {@code request.preflight(request.getPreflight().andThen(yourfunction)}</p>
 	 */
 	public HttpRequest preflight(final Function<HttpRequest, HttpRequest> preflight) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -431,7 +434,7 @@ public class HttpRequest {
 	 * so you can safely {@code request.postflight(request.getPostflight().andThen(yourfunction)}</p>
 	 */
 	public HttpRequest postflight(final Function<HttpResponse, HttpResponse> postflight) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -447,7 +450,15 @@ public class HttpRequest {
 	 * - the same behavior as most http libraries.</p>
 	 */
 	public HttpRequest followRedirects(final boolean followRedirects) {
-		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects);
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
+	}
+
+	/**
+	 * Allows us to intercept HttpExceptions (caused by non-success http response codes) and do something
+	 * more application-meaningful.
+	 */
+	public HttpRequest errorTranslator(final ErrorTranslator errorTranslator) {
+		return new HttpRequest(transport, method, url, params, contentType, body, headers, timeout, retries, mapper, preflight, postflight, followRedirects, errorTranslator);
 	}
 
 	/**
@@ -470,7 +481,7 @@ public class HttpRequest {
 		log.debug("{} {}", getMethod(), toUrlString());
 
 		try {
-			return new HttpResponse(getTransport().fetch(this), getMapper());
+			return new HttpResponse(getTransport().fetch(this), getMapper(), getErrorTranslator());
 		} catch (IOException e) {
 			throw new IORuntimeException(e);
 		}
