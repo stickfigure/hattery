@@ -29,6 +29,7 @@ import lombok.Getter;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -64,6 +65,21 @@ public class HttpException extends IORuntimeException {
 		this.headers = headers;
 		this.content = content;
 	}
+
+	/**
+	 * Get the content as a string with the specified charset.
+	 */
+	public String getContentString(final Charset charset) {
+		return new String(getContent(), charset);
+	}
+
+	/**
+	 * Alias for {@code getContentString(StandardCharsets.UTF_8)}
+	 */
+	public String getContentString() {
+		return getContentString(StandardCharsets.UTF_8);
+	}
+
 
 	private static String makeMessageOutOf(final ListMultimap<String, String> headers, final byte[] content) {
 		final String contentType = getContentType(headers);
