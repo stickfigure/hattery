@@ -23,6 +23,8 @@
 package com.voodoodyne.hattery;
 
 import lombok.Data;
+import lombok.Value;
+
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
  * 
  * @author Jeff Schnitzer
  */
-@Data
+@Value
 public class Param {
 	/** Make a new array with the extra parameters tacked on */
 	public static Param[] concat(final Param[] base, final Param... params) {
@@ -42,10 +44,10 @@ public class Param {
 	}
 
 	/** */
-	private final String name;
+	String name;
 
 	/** */
-	private final Object value;
+	Object value;
 
 	/**
 	 */

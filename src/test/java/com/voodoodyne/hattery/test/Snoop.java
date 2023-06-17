@@ -25,6 +25,7 @@ package com.voodoodyne.hattery.test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.voodoodyne.hattery.HttpRequest;
 import lombok.Data;
+import lombok.Value;
 
 import java.util.Map;
 
@@ -34,22 +35,22 @@ import java.util.Map;
  *
  * @author Jeff Schnitzer
  */
-@Data
+@Value
 public class Snoop {
 
 	/** */
 	public static HttpRequest SNOOP = HttpRequest.HTTP.url("https://hattery-snoop.appspot.com");
 
-	private final String url;
-	private final String method;
-	private final String path;
-	private final String query;
-	private final Map<String, String> queryParams;
-	private final Map<String, String[]> queryParamsAll;
-	private final Map<String, String> formParams;
-	private final Map<String, String[]> formParamsAll;
-	private final Map<String, String> headers;
-	private final JsonNode body;
+	 String url;
+	 String method;
+	 String path;
+	 String query;
+	 Map<String, String> queryParams;
+	 Map<String, String[]> queryParamsAll;
+	 Map<String, String> formParams;
+	 Map<String, String[]> formParamsAll;
+	 Map<String, String> headers;
+	 JsonNode body;
 
 	public String getContentType() {
 		return getHeaders().get("Content-Type");

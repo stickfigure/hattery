@@ -24,6 +24,7 @@ package com.voodoodyne.hattery;
 
 import com.google.common.collect.Maps;
 import lombok.Data;
+import lombok.Value;
 
 import java.util.Map;
 
@@ -33,10 +34,10 @@ import java.util.Map;
  * 
  * @author Jeff Schnitzer
  */
-@Data
+@Value
 class QueryParamValue {
 	/** */
-	private final Object value;
+	Object value;
 
 	/** Null-safe */
 	public static QueryParamValue of(final Object val) {

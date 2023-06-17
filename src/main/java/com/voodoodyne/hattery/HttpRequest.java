@@ -52,7 +52,7 @@ import java.util.function.Function;
  * 
  * @author Jeff Schnitzer
  */
-@Data
+@Value
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Slf4j
 @ToString(exclude = {"mapper", "preflight", "postflight", "body"})	// too noisy
@@ -70,45 +70,45 @@ public class HttpRequest {
 	private static final String APPLICATION_X_WWW_FORM_URLENCODED_BEGINNING = APPLICATION_X_WWW_FORM_URLENCODED.split(";")[0];
 
 	/** */
-	private final Transport transport;
+	Transport transport;
 
 	/** */
-	private final String method;
+	String method;
 
 	/** URL so far; can be extended with path() */
-	private final String url;
+	String url;
 
 	/** value will be either String, Collection<String>, or BinaryAttachment */
-	private final Map<String, Object> params;
+	Map<String, Object> params;
 
 	/** */
-	private final String contentType;
+	String contentType;
 
 	/** Object to be jsonfied */
-	private final Object body;
+	Object body;
 
 	/** */
-	private final Map<String, String> headers;
+	Map<String, String> headers;
 
 	/** 0 for no explicit timeout (aka default), otherwise measured in millis */
-	private final int timeout;
+	int timeout;
 
 	/** 0 for no retries */
-	private final int retries;
+	int retries;
 
 	/** */
-	private final ObjectMapper mapper;
+	ObjectMapper mapper;
 
 	/** */
-	private final Function<HttpRequest, HttpRequest> preflight;
+	Function<HttpRequest, HttpRequest> preflight;
 
 	/** */
-	private final Function<HttpResponse, HttpResponse> postflight;
+	Function<HttpResponse, HttpResponse> postflight;
 
 	/** Careful, defaults to true like most libraries */
-	private final boolean followRedirects;
+	boolean followRedirects;
 
-	private final ErrorTranslator errorTranslator;
+	ErrorTranslator errorTranslator;
 
 	/**
 	 * Default values

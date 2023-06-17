@@ -1,15 +1,15 @@
 package com.voodoodyne.hattery;
 
-import lombok.Data;
 import lombok.ToString;
+import lombok.Value;
 
 import java.io.InputStream;
 
 /** Used as a param value when user submits binary attachments */
-@Data
+@Value
 @ToString(exclude = "data")
 public class BinaryAttachment {
-	private final InputStream data;
-	private final String contentType;
-	private final String filename;
+	InputStream data;
+	String contentType;
+	String filename;
 }
