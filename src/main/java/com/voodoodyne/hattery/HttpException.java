@@ -96,7 +96,7 @@ public class HttpException extends IORuntimeException {
 			final String lowercase = contentType.toLowerCase();
 			if (lowercase.startsWith("text")) {
 				return chopTo(new String(notNullContent, StandardCharsets.UTF_8), MAX_TEXT_MSG_LENGTH);
-			} else if (lowercase.startsWith("application/json")) {
+			} else if (lowercase.startsWith("application/json") || lowercase.startsWith("application/xml")) {
 				return new String(notNullContent, StandardCharsets.UTF_8);
 			} else {
 				return "Error body of type " + contentType + ", " + notNullContent.length + " bytes";
