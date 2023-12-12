@@ -36,9 +36,18 @@ public class Java11Transport implements Transport {
 
 	/** Constructs the transport with basic client configuration */
 	public Java11Transport() {
+		this(HttpClient.newBuilder());
+	}
+
+	/**
+	 * Constructs this transport with a customized client configuration.
+	 * The builder will be modified with followRedirects() and built() twice;
+	 * once to generate a client that follows redirects, once to generate a client that does not follow redirects.
+	 */
+	public Java11Transport(final HttpClient.Builder clientBuilder) {
 		this(
-				HttpClient.newBuilder().followRedirects(Redirect.NORMAL).build(),
-				HttpClient.newBuilder().followRedirects(Redirect.NEVER).build()
+				clientBuilder.followRedirects(Redirect.NORMAL).build(),
+				clientBuilder.followRedirects(Redirect.NEVER).build()
 		);
 	}
 
