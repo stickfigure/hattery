@@ -3,7 +3,7 @@
 Hattery (mad, of course) is a Java library for making HTTP requests. It provides a simple fluent interface based around immutable objects.
  
 ```java
-// Requests are immutable, start with the base that uses DefaultTransport
+// Requests are immutable, start with the base that uses Java11Transport
 import static com.voodoodyne.hattery.HttpRequest.HTTP;
 
 // A GET request
@@ -60,12 +60,16 @@ Install with maven:
     </dependency>
 ```
 
-Hattery requires Java 8+.
+Hattery v1.1+ requires Java 11+. Previous versions require Java 8+.
 
 Some philosphy:
 
  * `HttpRequest`s are immutable and thread-safe. You can pass them around anywhere. 
- * Checked exceptions are a misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORException`s
+ * Checked exceptions are a misfeature of Java. Only runtime exceptions are thrown; all `IOException`s become `IORuntimeException`s
+ * Transports are distinct from the request API
+   * The default transport is the Java11 HttpClient
+   * There's a URLConnectionTransport if you want to use the legacy URL.openConnection()
+   * You can write your own custom transports (eg, ApacheHttpClientTransport).
  
 A common pattern is to build a partial request and extend it when you need it; don't rebuild all the state every time. A contrived, self-contained example:
 
