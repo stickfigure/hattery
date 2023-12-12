@@ -58,7 +58,7 @@ import java.util.function.Function;
 @ToString(exclude = {"mapper", "preflight", "postflight", "body"})	// too noisy
 public class HttpRequest {
 	/** The immutable starting point for any http request chain */
-	public static HttpRequest HTTP = new HttpRequest(new DefaultTransport());
+	public static HttpRequest HTTP = new HttpRequest(new Java11Transport());
 
 	/** */
 	public static final String APPLICATION_JSON = "application/json";

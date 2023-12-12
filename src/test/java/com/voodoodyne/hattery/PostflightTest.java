@@ -47,6 +47,6 @@ class PostflightTest {
 				})
 				.fetch().succeed();
 
-		assertThat(headers).containsEntry("Server", "Google Frontend");
+		assertThat(headers).containsEntry("server", "Google Frontend");
 	}
 }
