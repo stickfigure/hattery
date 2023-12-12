@@ -1,3 +1,7 @@
+# 1.1.1
+2023-12-12
+  * Add a `Java11Transport` constructor that takes a `HttpClient.Builder`
+
 # 1.1.0
 2023-12-12
   * Java11 is now the minimum required Java version
