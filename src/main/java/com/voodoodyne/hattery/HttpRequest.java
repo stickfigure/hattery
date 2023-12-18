@@ -55,7 +55,7 @@ import java.util.function.Function;
 @Value
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Slf4j
-@ToString(exclude = {"mapper", "preflight", "postflight", "body"})	// too noisy
+@ToString(exclude = {"mapper", "preflight", "postflight", "body", "errorTranslator"})	// too noisy
 public class HttpRequest {
 	/** The immutable starting point for any http request chain */
 	public static HttpRequest HTTP = new HttpRequest(new Java11Transport());
