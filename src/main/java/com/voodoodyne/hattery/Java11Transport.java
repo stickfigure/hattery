@@ -46,7 +46,7 @@ public class Java11Transport implements Transport {
 	 */
 	public Java11Transport(final HttpClient.Builder clientBuilder) {
 		this(
-				clientBuilder.followRedirects(Redirect.NORMAL).build(),
+				clientBuilder.followRedirects(Redirect.ALWAYS).build(),
 				clientBuilder.followRedirects(Redirect.NEVER).build()
 		);
 	}
