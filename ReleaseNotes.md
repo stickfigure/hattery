@@ -1,3 +1,7 @@
+# 1.1.2
+2023-12-18
+  * When following redirects, use the ALWAYS policy instead of NORMAL. Will follow https -> http.
+
 # 1.1.1
 2023-12-12
   * Add a `Java11Transport` constructor that takes a `HttpClient.Builder`
